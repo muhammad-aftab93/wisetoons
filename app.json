@@ -24,6 +24,12 @@
     },
     "plugins": [
       "expo-font"
-    ]
+    ],
+    "extra": {
+      "eas": {
+        "projectId": "bd8522a1-59da-459f-bb51-78080402172e"
+      }
+    },
+    "owner": "devexpo93s-team"
   }
 }
