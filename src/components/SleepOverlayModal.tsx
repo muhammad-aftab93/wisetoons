@@ -2,6 +2,7 @@
 import React from 'react';
 import { Modal, View, Text, TouchableOpacity, StyleSheet } from 'react-native';
 import { Ollie } from './Ollie';
+import { DreamyBackground } from './DreamyBackground';
 
 interface Props {
   visible: boolean;
@@ -12,6 +13,7 @@ interface Props {
 export const SleepOverlayModal: React.FC<Props> = ({ visible, onWake }) => (
   <Modal visible={visible} transparent={false} animationType="fade" onRequestClose={() => {}}>
     <View style={styles.container}>
+      <DreamyBackground forceMode="night" />
       <Text style={styles.stars}>✨ ⭐ ✨ ⭐ ✨</Text>
       <Ollie size={140} sleeping />
       <Text style={styles.title}>Time for Sleep with Ollie!</Text>

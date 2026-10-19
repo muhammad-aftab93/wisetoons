@@ -5,6 +5,7 @@ import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/types';
 import { useApp } from '../context/AppContext';
 import { Ollie } from '../components/Ollie';
+import { DreamyBackground } from '../components/DreamyBackground';
 import { RADIUS, TYPOGRAPHY } from '../theme/theme';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Splash'>;
@@ -44,6 +45,7 @@ export const SplashScreen: React.FC<Props> = ({ navigation }) => {
 
   return (
     <Animated.View style={[styles.container, { backgroundColor: colors.background, opacity: fade }]}>
+      <DreamyBackground />
       {STARS.map((pos, i) => (
         <Animated.Text key={i} style={[styles.star, pos, { opacity: twinkle }]}>
           ✨

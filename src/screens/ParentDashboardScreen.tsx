@@ -7,6 +7,7 @@ import { Ionicons } from '@expo/vector-icons';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/types';
 import { useApp } from '../context/AppContext';
+import { DreamyBackground } from '../components/DreamyBackground';
 import { RADIUS, SPACING, TYPOGRAPHY } from '../theme/theme';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'ParentDashboard'>;
@@ -43,6 +44,7 @@ export const ParentDashboardScreen: React.FC<Props> = ({ navigation }) => {
 
   return (
     <SafeAreaView style={[styles.safe, { backgroundColor: colors.background }]}>
+      <DreamyBackground />
       <View style={[styles.header, { backgroundColor: colors.surface, borderBottomColor: colors.cardBorder }]}>
         <TouchableOpacity
           style={[styles.back, { backgroundColor: colors.primaryAccent }]}

@@ -8,26 +8,121 @@ import { useApp, ViewMode } from '../context/AppContext';
 
 interface Props {
   video: WiseToonVideo;
-  onPress: () => void;
+  onPress?: () => void;
+  onPlay?: (videoId: string) => void;
   variant?: ViewMode;
 }
 
-export const VideoCard: React.FC<Props> = ({ video, onPress, variant = 'grid' }) => {
+export const VideoCard: React.FC<Props> = React.memo(({ video, onPress, onPlay, variant = 'grid' }) => {
   const { colors, isFavorite, toggleFavorite } = useApp();
   const fav = isFavorite(video.videoId);
+
+  const handlePress = () => {
+    if (onPlay) {
+      onPlay(video.videoId);
+    } else if (onPress) {
+      onPress();
+    }
+  };
+
+  const pressScale = useRef(new Animated.Value(1)).current;
+  const enterAnim = useRef(new Animated.Value(0)).current;
+  const playPulse = useRef(new Animated.Value(1)).current;
+  const starScale = useRef(new Animated.Value(1)).current;
+  const starRotate = useRef(new Animated.Value(0)).current;
+
+  useEffect(() => {
+    Animated.spring(enterAnim, {
+      toValue: 1,
+      friction: 6,
+      tension: 60,
+      useNativeDriver: true,
+    }).start();
+
+    const pulseLoop = Animated.loop(
+      Animated.sequence([
+        Animated.timing(playPulse, { toValue: 1.14, duration: 950, useNativeDriver: true }),
+        Animated.timing(playPulse, { toValue: 1, duration: 950, useNativeDriver: true }),
+      ])
+    );
+    pulseLoop.start();
+    return () => pulseLoop.stop();
+  }, [enterAnim, playPulse]);
+
+  const handlePressIn = () => {
+    Animated.spring(pressScale, {
+      toValue: 0.93,
+      friction: 6,
+      tension: 140,
+      useNativeDriver: true,
+    }).start();
+  };
+
+  const handlePressOut = () => {
+    Animated.spring(pressScale, {
+      toValue: 1,
+      friction: 4,
+      tension: 110,
+      useNativeDriver: true,
+    }).start();
+  };
+
+  const handleToggleFavorite = () => {
+    toggleFavorite(video.videoId);
+    starScale.setValue(0.75);
+    starRotate.setValue(0);
+    Animated.parallel([
+      Animated.sequence([
+        Animated.spring(starScale, {
+          toValue: 1.4,
+          friction: 3,
+          tension: 160,
+          useNativeDriver: true,
+        }),
+        Animated.spring(starScale, {
+          toValue: 1,
+          friction: 4,
+          tension: 120,
+          useNativeDriver: true,
+        }),
+      ]),
+      Animated.sequence([
+        Animated.timing(starRotate, { toValue: -1, duration: 90, useNativeDriver: true }),
+        Animated.timing(starRotate, { toValue: 1, duration: 120, useNativeDriver: true }),
+        Animated.timing(starRotate, { toValue: 0, duration: 90, useNativeDriver: true }),
+      ]),
+    ]).start();
+  };
+
+  const starSpin = starRotate.interpolate({
+    inputRange: [-1, 0, 1],
+    outputRange: ['-20deg', '0deg', '20deg'],
+  });
+
+  const cardScale = Animated.multiply(
+    pressScale,
+    enterAnim.interpolate({ inputRange: [0, 1], outputRange: [0.9, 1] })
+  );
 
   if (variant === 'list') {
     const snippet = video.lyricsOrStory?.[0]?.replace(/\s+/g, ' ').trim();
     return (
-      <View
+      <Animated.View
         style={[
           styles.listCard,
-          { backgroundColor: colors.surface, borderColor: colors.cardBorder },
+          {
+            backgroundColor: colors.surface,
+            borderColor: colors.cardBorder,
+            opacity: enterAnim,
+            transform: [{ scale: cardScale }],
+          },
         ]}
       >
         <TouchableOpacity
           activeOpacity={0.9}
-          onPress={onPress}
+          onPress={handlePress}
+          onPressIn={handlePressIn}
+          onPressOut={handlePressOut}
           accessibilityRole="button"
           accessibilityLabel={`Play ${video.title}`}
           style={styles.listMain}
@@ -38,9 +133,9 @@ export const VideoCard: React.FC<Props> = ({ video, onPress, variant = 'grid' })
               style={styles.thumb}
               resizeMode="cover"
             />
-            <View style={styles.playBadge}>
+            <Animated.View style={[styles.playBadge, { transform: [{ scale: playPulse }] }]}>
               <Ionicons name="play" size={16} color="#fff" style={{ marginLeft: 2 }} />
-            </View>
+            </Animated.View>
             {!!video.duration && (
               <View style={styles.duration}>
                 <Text style={styles.durationText}>{video.duration}</Text>
@@ -64,7 +159,7 @@ export const VideoCard: React.FC<Props> = ({ video, onPress, variant = 'grid' })
         </TouchableOpacity>
 
         <TouchableOpacity
-          onPress={() => toggleFavorite(video.videoId)}
+          onPress={handleToggleFavorite}
           accessibilityRole="button"
           accessibilityLabel={fav ? 'Remove from starred' : 'Add to starred'}
           hitSlop={{ top: 6, right: 6, bottom: 6, left: 6 }}
@@ -73,21 +168,33 @@ export const VideoCard: React.FC<Props> = ({ video, onPress, variant = 'grid' })
             { backgroundColor: fav ? colors.starActive : colors.surfaceElevated },
           ]}
         >
-          <Ionicons
-            name={fav ? 'star' : 'star-outline'}
-            size={20}
-            color={fav ? colors.onAccent : colors.textPrimary}
-          />
+          <Animated.View style={{ transform: [{ scale: starScale }, { rotate: starSpin }] }}>
+            <Ionicons
+              name={fav ? 'star' : 'star-outline'}
+              size={20}
+              color={fav ? colors.onAccent : colors.textPrimary}
+            />
+          </Animated.View>
         </TouchableOpacity>
-      </View>
+      </Animated.View>
     );
   }
 
   return (
-    <View style={styles.card}>
+    <Animated.View
+      style={[
+        styles.card,
+        {
+          opacity: enterAnim,
+          transform: [{ scale: cardScale }],
+        },
+      ]}
+    >
       <TouchableOpacity
         activeOpacity={0.9}
-        onPress={onPress}
+        onPress={handlePress}
+        onPressIn={handlePressIn}
+        onPressOut={handlePressOut}
         accessibilityRole="button"
         accessibilityLabel={`Play ${video.title}`}
       >
@@ -97,9 +204,9 @@ export const VideoCard: React.FC<Props> = ({ video, onPress, variant = 'grid' })
             style={styles.thumb}
             resizeMode="cover"
           />
-          <View style={styles.playBadge}>
+          <Animated.View style={[styles.playBadge, { transform: [{ scale: playPulse }] }]}>
             <Ionicons name="play" size={16} color="#fff" style={{ marginLeft: 2 }} />
-          </View>
+          </Animated.View>
           {!!video.duration && (
             <View style={styles.duration}>
               <Text style={styles.durationText}>{video.duration}</Text>
@@ -110,13 +217,15 @@ export const VideoCard: React.FC<Props> = ({ video, onPress, variant = 'grid' })
 
       {/* Star sits on the thumbnail corner, outside the touch area of the card itself. */}
       <TouchableOpacity
-        onPress={() => toggleFavorite(video.videoId)}
+        onPress={handleToggleFavorite}
         accessibilityRole="button"
         accessibilityLabel={fav ? 'Remove from starred' : 'Add to starred'}
         hitSlop={{ top: 6, right: 6, bottom: 6, left: 6 }}
         style={[styles.star, { backgroundColor: fav ? colors.starActive : 'rgba(0,0,0,0.55)' }]}
       >
-        <Ionicons name={fav ? 'star' : 'star-outline'} size={16} color={fav ? colors.onAccent : '#fff'} />
+        <Animated.View style={{ transform: [{ scale: starScale }, { rotate: starSpin }] }}>
+          <Ionicons name={fav ? 'star' : 'star-outline'} size={16} color={fav ? colors.onAccent : '#fff'} />
+        </Animated.View>
       </TouchableOpacity>
 
       <Text style={[styles.title, { color: colors.textPrimary }]} numberOfLines={2}>
@@ -125,9 +234,9 @@ export const VideoCard: React.FC<Props> = ({ video, onPress, variant = 'grid' })
       <Text style={[styles.category, { color: colors.textSecondary }]} numberOfLines={1}>
         {video.isShort ? 'Short · ' : ''}{timeAgo(video.publishedAt)}
       </Text>
-    </View>
+    </Animated.View>
   );
-};
+});
 
 export const ViewModeToggle: React.FC = () => {
   const { colors, viewMode, setViewMode } = useApp();

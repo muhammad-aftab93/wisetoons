@@ -15,6 +15,8 @@ interface Props {
 export const Ollie: React.FC<Props> = ({ size = 120, sleeping = false, waving = false, accessory }) => {
   const bob = useRef(new Animated.Value(0)).current;
   const wave = useRef(new Animated.Value(0)).current;
+  const blink = useRef(new Animated.Value(1)).current;
+  const tuftWiggle = useRef(new Animated.Value(0)).current;
 
   useEffect(() => {
     const bobLoop = Animated.loop(
@@ -24,6 +26,32 @@ export const Ollie: React.FC<Props> = ({ size = 120, sleeping = false, waving = 
       ])
     );
     bobLoop.start();
+
+    const tuftLoop = Animated.loop(
+      Animated.sequence([
+        Animated.delay(1800),
+        Animated.timing(tuftWiggle, { toValue: 1, duration: 220, useNativeDriver: true }),
+        Animated.timing(tuftWiggle, { toValue: -1, duration: 220, useNativeDriver: true }),
+        Animated.timing(tuftWiggle, { toValue: 0, duration: 200, useNativeDriver: true }),
+      ])
+    );
+    tuftLoop.start();
+
+    let blinkLoop: Animated.CompositeAnimation | null = null;
+    if (!sleeping) {
+      blinkLoop = Animated.loop(
+        Animated.sequence([
+          Animated.delay(2600),
+          Animated.timing(blink, { toValue: 0.08, duration: 110, useNativeDriver: true }),
+          Animated.timing(blink, { toValue: 1, duration: 140, useNativeDriver: true }),
+          Animated.delay(180),
+          Animated.timing(blink, { toValue: 0.08, duration: 100, useNativeDriver: true }),
+          Animated.timing(blink, { toValue: 1, duration: 140, useNativeDriver: true }),
+        ])
+      );
+      blinkLoop.start();
+    }
+
     let waveLoop: Animated.CompositeAnimation | null = null;
     if (waving) {
       waveLoop = Animated.loop(
@@ -36,12 +64,17 @@ export const Ollie: React.FC<Props> = ({ size = 120, sleeping = false, waving = 
     }
     return () => {
       bobLoop.stop();
+      tuftLoop.stop();
+      blinkLoop?.stop();
       waveLoop?.stop();
     };
-  }, [bob, wave, waving]);
+  }, [bob, tuftWiggle, blink, wave, waving, sleeping]);
 
   const s = size;
   const eye = s * 0.26;
+  const leftTuftRotate = tuftWiggle.interpolate({ inputRange: [-1, 0, 1], outputRange: ['25deg', '35deg', '45deg'] });
+  const rightTuftRotate = tuftWiggle.interpolate({ inputRange: [-1, 0, 1], outputRange: ['45deg', '35deg', '25deg'] });
+
   return (
     <Animated.View
       style={{ transform: [{ translateY: bob.interpolate({ inputRange: [0, 1], outputRange: [0, -s * 0.06] }) }] }}
@@ -49,8 +82,18 @@ export const Ollie: React.FC<Props> = ({ size = 120, sleeping = false, waving = 
     >
       <View style={{ width: s, height: s, alignItems: 'center' }}>
         {/* ear tufts */}
-        <View style={[styles.tuft, { left: s * 0.1, width: s * 0.22, height: s * 0.22, top: 0 }]} />
-        <View style={[styles.tuft, { right: s * 0.1, width: s * 0.22, height: s * 0.22, top: 0 }]} />
+        <Animated.View
+          style={[
+            styles.tuft,
+            { left: s * 0.1, width: s * 0.22, height: s * 0.22, top: 0, transform: [{ rotate: leftTuftRotate }] },
+          ]}
+        />
+        <Animated.View
+          style={[
+            styles.tuft,
+            { right: s * 0.1, width: s * 0.22, height: s * 0.22, top: 0, transform: [{ rotate: rightTuftRotate }] },
+          ]}
+        />
         {/* body */}
         <View style={[styles.body, { width: s * 0.9, height: s * 0.92, borderRadius: s * 0.45, top: s * 0.08 }]}>
           <View style={[styles.belly, { width: s * 0.5, height: s * 0.42, borderRadius: s * 0.25, bottom: s * 0.06 }]} />
@@ -60,9 +103,19 @@ export const Ollie: React.FC<Props> = ({ size = 120, sleeping = false, waving = 
                 {sleeping ? (
                   <View style={{ width: eye, height: 4, backgroundColor: '#3E2723', borderRadius: 2 }} />
                 ) : (
-                  <View style={[styles.pupil, { width: eye * 0.8, height: eye * 0.8, borderRadius: eye * 0.4 }]}>
+                  <Animated.View
+                    style={[
+                      styles.pupil,
+                      {
+                        width: eye * 0.8,
+                        height: eye * 0.8,
+                        borderRadius: eye * 0.4,
+                        transform: [{ scaleY: blink }],
+                      },
+                    ]}
+                  >
                     <View style={styles.glint} />
-                  </View>
+                  </Animated.View>
                 )}
               </View>
             ))}
