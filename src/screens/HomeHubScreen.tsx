@@ -25,6 +25,7 @@ import { RADIUS, SPACING, TYPOGRAPHY } from '../theme/theme';
 type Props = NativeStackScreenProps<RootStackParamList, 'HomeHub'>;
 
 const TINTS = ['#FFE082', '#B8E8FC', '#C8F7DC', '#FFD1DC', '#E0C8FF', '#FFD8BE'];
+const LOCAL_CHANNEL_ICON = require('../../assets/channel-icon.png');
 const YOUTUBE_SUBSCRIBE_URL = 'https://www.youtube.com/@WiseToons_for_Kids?sub_confirmation=1';
 const YOUTUBE_APP_IOS_URL = 'youtube://www.youtube.com/@WiseToons_for_Kids?sub_confirmation=1';
 const YOUTUBE_APP_ANDROID_URL = 'vnd.youtube://www.youtube.com/@WiseToons_for_Kids?sub_confirmation=1';
@@ -371,7 +372,12 @@ export const HomeHubScreen: React.FC<Props> = ({ navigation }) => {
       >
         <View style={[styles.logoWrap, compact && styles.logoWrapCompact, narrow && styles.logoWrapNarrow]}>
           <Animated.Image
-            source={{ uri: channelLogoUrl }}
+            source={
+              channelLogoUrl && channelLogoUrl !== DEFAULT_CHANNEL_LOGO_URL
+                ? { uri: channelLogoUrl }
+                : LOCAL_CHANNEL_ICON
+            }
+            defaultSource={LOCAL_CHANNEL_ICON}
             style={[
               styles.channelLogo,
               { borderColor: colors.primaryAccent, transform: [{ rotate: logoRotate }] },

@@ -6,6 +6,7 @@
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
+    "backgroundColor": "#EAF2FF",
     "ios": {
       "supportsTablet": true,
       "bundleIdentifier": "com.wisetoons.kids",
@@ -13,6 +14,7 @@
     },
     "android": {
       "package": "com.wisetoons.kids",
+      "backgroundColor": "#EAF2FF",
       "adaptiveIcon": {
         "backgroundColor": "#1B1931",
         "foregroundImage": "./assets/android-icon-foreground.png"
@@ -22,8 +24,21 @@
     "web": {
       "favicon": "./assets/favicon.png"
     },
+    "splash": {
+      "image": "./assets/splash-icon.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#EAF2FF"
+    },
     "plugins": [
-      "expo-font"
+      "expo-font",
+      [
+        "expo-splash-screen",
+        {
+          "image": "./assets/splash-icon.png",
+          "resizeMode": "contain",
+          "backgroundColor": "#EAF2FF"
+        }
+      ]
     ],
     "extra": {
       "eas": {

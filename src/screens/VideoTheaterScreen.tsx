@@ -117,12 +117,17 @@ export const VideoTheaterScreen: React.FC<Props> = ({ navigation, route }) => {
 
   // Pause when any modal (parental gate / sleep overlay) covers the player or screen loses focus.
   useEffect(() => {
-    if (overlayActive || !focused) setIsPlaying(false);
+    if (overlayActive || !focused) {
+      setIsPlaying(false);
+    } else {
+      setIsPlaying(true);
+    }
   }, [overlayActive, focused]);
 
   const onPlayerStateChange = useCallback((state: string) => {
-    if (state === 'playing') setIsPlaying(true);
-    else if (state === 'paused' || state === 'ended') setIsPlaying(false);
+    if (state === 'ended') {
+      setIsPlaying(false);
+    }
   }, []);
 
   const handleSelectRecommended = useCallback((nextId: string, index: number) => {

@@ -29,9 +29,9 @@ export const YouTubePlayer: React.FC<YouTubePlayerProps> = ({
       try {
         const msg = JSON.parse(e.data);
         if (msg.event === 'onStateChange') {
-          if (msg.info === 1) onChangeState('playing');
-          else if (msg.info === 2) onChangeState('paused');
-          else if (msg.info === 0) onChangeState('ended');
+          if (msg.info === 1) onChangeState?.('playing');
+          else if (msg.info === 2) onChangeState?.('paused');
+          else if (msg.info === 0) onChangeState?.('ended');
         }
       } catch {
         // ignore non-JSON messages

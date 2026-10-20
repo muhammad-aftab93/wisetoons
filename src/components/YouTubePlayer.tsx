@@ -8,7 +8,8 @@ export interface YouTubePlayerProps {
   height: number;
   videoId: string;
   play: boolean;
-  onChangeState: (state: 'playing' | 'paused' | 'ended' | string) => void;
+  onChangeState?: (state: 'playing' | 'paused' | 'ended' | string) => void;
+  onError?: (error: string) => void;
 }
 
 export const YouTubePlayer: React.FC<YouTubePlayerProps> = ({
@@ -17,6 +18,7 @@ export const YouTubePlayer: React.FC<YouTubePlayerProps> = ({
   videoId,
   play,
   onChangeState,
+  onError,
 }) => (
   <YoutubeIframe
     width={width}
@@ -24,8 +26,22 @@ export const YouTubePlayer: React.FC<YouTubePlayerProps> = ({
     play={play}
     videoId={videoId}
     onChangeState={onChangeState}
-    initialPlayerParams={{ rel: false, modestbranding: true, controls: true }}
-    webViewProps={{ allowsInlineMediaPlayback: true, mediaPlaybackRequiresUserAction: false }}
+    onError={onError}
+    forceAndroidAutoplay={true}
+    initialPlayerParams={{
+      rel: false,
+      modestbranding: true,
+      controls: true,
+      preventFullScreen: false,
+    }}
+    webViewProps={{
+      allowsInlineMediaPlayback: true,
+      mediaPlaybackRequiresUserAction: false,
+      domStorageEnabled: true,
+      javaScriptEnabled: true,
+      androidHardwareAccelerationDisabled: false,
+      androidLayerType: 'hardware',
+    }}
   />
 );
 

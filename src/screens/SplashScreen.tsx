@@ -6,7 +6,11 @@ import { RootStackParamList } from '../navigation/types';
 import { useApp } from '../context/AppContext';
 import { Ollie } from '../components/Ollie';
 import { DreamyBackground } from '../components/DreamyBackground';
+import { DEFAULT_CHANNEL_LOGO_URL } from '../data/videos';
 import { RADIUS, TYPOGRAPHY } from '../theme/theme';
+import * as ExpoSplashScreen from 'expo-splash-screen';
+
+const LOCAL_CHANNEL_ICON = require('../../assets/channel-icon.png');
 
 type Props = NativeStackScreenProps<RootStackParamList, 'Splash'>;
 
@@ -18,7 +22,6 @@ const STARS = [
 export const SplashScreen: React.FC<Props> = ({ navigation }) => {
   const { colors, bootstrap, channelLogoUrl } = useApp();
   const progress = useRef(new Animated.Value(0)).current;
-  const fade = useRef(new Animated.Value(1)).current;
   const twinkle = useRef(new Animated.Value(0.3)).current;
 
   useEffect(() => {
@@ -31,20 +34,21 @@ export const SplashScreen: React.FC<Props> = ({ navigation }) => {
     ).start();
     Animated.timing(progress, { toValue: 1, duration: 2000, useNativeDriver: false }).start();
 
+    // Hide native splash once React component has mounted
+    ExpoSplashScreen.hideAsync().catch(() => {});
+
     const minWait = new Promise<void>((r) => setTimeout(r, 2000));
     Promise.all([bootstrap(), minWait]).then(() => {
       if (cancelled) return;
-      Animated.timing(fade, { toValue: 0, duration: 200, useNativeDriver: true }).start(() => {
-        if (!cancelled) navigation.replace('HomeHub');
-      });
+      navigation.replace('HomeHub');
     });
     return () => {
       cancelled = true;
     };
-  }, [bootstrap, fade, navigation, progress, twinkle]);
+  }, [bootstrap, navigation, progress, twinkle]);
 
   return (
-    <Animated.View style={[styles.container, { backgroundColor: colors.background, opacity: fade }]}>
+    <View style={[styles.container, { backgroundColor: colors.background }]}>
       <DreamyBackground />
       {STARS.map((pos, i) => (
         <Animated.Text key={i} style={[styles.star, pos, { opacity: twinkle }]}>
@@ -66,11 +70,16 @@ export const SplashScreen: React.FC<Props> = ({ navigation }) => {
         />
       </View>
       <Image
-        source={{ uri: channelLogoUrl }}
+        source={
+          channelLogoUrl && channelLogoUrl !== DEFAULT_CHANNEL_LOGO_URL
+            ? { uri: channelLogoUrl }
+            : LOCAL_CHANNEL_ICON
+        }
+        defaultSource={LOCAL_CHANNEL_ICON}
         style={[styles.channelLogo, { borderColor: colors.primaryAccent }]}
         resizeMode="cover"
       />
-    </Animated.View>
+    </View>
   );
 };
 
