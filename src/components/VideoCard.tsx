@@ -3,6 +3,7 @@ import React, { useEffect, useRef } from 'react';
 import { View, Text, Image, TouchableOpacity, StyleSheet, Animated } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { RADIUS, SPACING, TYPOGRAPHY } from '../theme/theme';
+import { USE_NATIVE_DRIVER } from '../utils/animation';
 import { WiseToonVideo, timeAgo } from '../data/videos';
 import { useApp, ViewMode } from '../context/AppContext';
 
@@ -36,13 +37,13 @@ export const VideoCard: React.FC<Props> = React.memo(({ video, onPress, onPlay, 
       toValue: 1,
       friction: 6,
       tension: 60,
-      useNativeDriver: true,
+      useNativeDriver: USE_NATIVE_DRIVER,
     }).start();
 
     const pulseLoop = Animated.loop(
       Animated.sequence([
-        Animated.timing(playPulse, { toValue: 1.14, duration: 950, useNativeDriver: true }),
-        Animated.timing(playPulse, { toValue: 1, duration: 950, useNativeDriver: true }),
+        Animated.timing(playPulse, { toValue: 1.14, duration: 950, useNativeDriver: USE_NATIVE_DRIVER }),
+        Animated.timing(playPulse, { toValue: 1, duration: 950, useNativeDriver: USE_NATIVE_DRIVER }),
       ])
     );
     pulseLoop.start();
@@ -54,7 +55,7 @@ export const VideoCard: React.FC<Props> = React.memo(({ video, onPress, onPlay, 
       toValue: 0.93,
       friction: 6,
       tension: 140,
-      useNativeDriver: true,
+      useNativeDriver: USE_NATIVE_DRIVER,
     }).start();
   };
 
@@ -63,7 +64,7 @@ export const VideoCard: React.FC<Props> = React.memo(({ video, onPress, onPlay, 
       toValue: 1,
       friction: 4,
       tension: 110,
-      useNativeDriver: true,
+      useNativeDriver: USE_NATIVE_DRIVER,
     }).start();
   };
 
@@ -77,19 +78,19 @@ export const VideoCard: React.FC<Props> = React.memo(({ video, onPress, onPlay, 
           toValue: 1.4,
           friction: 3,
           tension: 160,
-          useNativeDriver: true,
+          useNativeDriver: USE_NATIVE_DRIVER,
         }),
         Animated.spring(starScale, {
           toValue: 1,
           friction: 4,
           tension: 120,
-          useNativeDriver: true,
+          useNativeDriver: USE_NATIVE_DRIVER,
         }),
       ]),
       Animated.sequence([
-        Animated.timing(starRotate, { toValue: -1, duration: 90, useNativeDriver: true }),
-        Animated.timing(starRotate, { toValue: 1, duration: 120, useNativeDriver: true }),
-        Animated.timing(starRotate, { toValue: 0, duration: 90, useNativeDriver: true }),
+        Animated.timing(starRotate, { toValue: -1, duration: 90, useNativeDriver: USE_NATIVE_DRIVER }),
+        Animated.timing(starRotate, { toValue: 1, duration: 120, useNativeDriver: USE_NATIVE_DRIVER }),
+        Animated.timing(starRotate, { toValue: 0, duration: 90, useNativeDriver: USE_NATIVE_DRIVER }),
       ]),
     ]).start();
   };
@@ -304,8 +305,8 @@ export const VideoCardSkeleton: React.FC = () => {
   useEffect(() => {
     const loop = Animated.loop(
       Animated.sequence([
-        Animated.timing(pulse, { toValue: 0.9, duration: 700, useNativeDriver: true }),
-        Animated.timing(pulse, { toValue: 0.45, duration: 700, useNativeDriver: true }),
+        Animated.timing(pulse, { toValue: 0.9, duration: 700, useNativeDriver: USE_NATIVE_DRIVER }),
+        Animated.timing(pulse, { toValue: 0.45, duration: 700, useNativeDriver: USE_NATIVE_DRIVER }),
       ])
     );
     loop.start();

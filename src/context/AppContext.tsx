@@ -28,47 +28,25 @@ import {
 } from '../services/storageService';
 import { ParentalGateModal } from '../components/ParentalGateModal';
 import { SleepOverlayModal } from '../components/SleepOverlayModal';
+import { AppContext, useApp, type AppContextValue } from './useAppContext';
 
+export { useApp, AppContext, type AppContextValue };
 export type { ViewMode } from '../services/storageService';
 
 const CATALOG_TTL_MS = 6 * 60 * 60 * 1000;
 
-interface AppContextValue {
-  mode: ThemeMode;
-  colors: ThemeColors;
-  toggleTheme: () => void;
-  viewMode: ViewMode;
-  setViewMode: (mode: ViewMode) => void;
-  selectedSectionId: string;
-  setSelectedSectionId: (id: string) => void;
-  channelLogoUrl: string;
-  videos: WiseToonVideo[];
-  sections: CatalogSection[];
-  catalogLoading: boolean;
-  catalogError: boolean;
-  reloadCatalog: () => void;
-  bootstrap: () => Promise<void>;
-  favorites: string[];
-  favoriteVideos: WiseToonVideo[];
-  isFavorite: (id: string) => boolean;
-  toggleFavorite: (id: string) => void;
-  clearFavorites: () => Promise<void>;
-  /** Shows the parental gate; runs onPass only after a correct answer. */
-  requestGate: (onPass: () => void) => void;
-  /** True while any modal/overlay is covering the player: playback must be paused. */
-  overlayActive: boolean;
-  sleepMinutes: number;
-  sleepRemainingMs: number;
-  setSleepTimer: (minutes: number) => void;
-  wakeFromSleep: () => void;
-}
+const ENSURED_GAMES_SECTION: CatalogSection = {
+  id: 'games',
+  title: 'Kids Games',
+  kind: 'games',
+  videoIds: [],
+};
 
-const AppContext = createContext<AppContextValue | null>(null);
-
-export const useApp = (): AppContextValue => {
-  const ctx = useContext(AppContext);
-  if (!ctx) throw new Error('useApp must be used inside AppProvider');
-  return ctx;
+const ENSURED_EDUCATION_SECTION: CatalogSection = {
+  id: 'education',
+  title: 'Learn & Explore',
+  kind: 'education',
+  videoIds: [],
 };
 
 export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
@@ -321,6 +299,22 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       .filter((v): v is WiseToonVideo => Boolean(v));
   }, [favorites, savedFavoriteVideos, catalog.videos]);
 
+  const sections = useMemo(() => {
+    let raw = (catalog?.sections ?? []).filter(
+      (s) => s.id !== ALL_SECTION_ID && s.kind !== 'all' && s.title.toLowerCase() !== 'all toons'
+    );
+    if (raw.length === 0) {
+      return BUNDLED_CATALOG.sections;
+    }
+    if (!raw.some((s) => s.id === 'games')) {
+      raw = [...raw, ENSURED_GAMES_SECTION];
+    }
+    if (!raw.some((s) => s.id === 'education')) {
+      raw = [...raw, ENSURED_EDUCATION_SECTION];
+    }
+    return raw;
+  }, [catalog?.sections]);
+
   const value = useMemo<AppContextValue>(
     () => ({
       mode,
@@ -332,7 +326,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       setSelectedSectionId,
       channelLogoUrl: catalog?.channelLogoUrl || DEFAULT_CHANNEL_LOGO_URL,
       videos: catalog?.videos ?? [],
-      sections: catalog?.sections ?? [],
+      sections,
       catalogLoading,
       catalogError,
       reloadCatalog: () => loadCatalog(false),
@@ -357,6 +351,7 @@ export const AppProvider: React.FC<{ children: React.ReactNode }> = ({ children 
       selectedSectionId,
       setSelectedSectionId,
       catalog,
+      sections,
       catalogLoading,
       catalogError,
       loadCatalog,

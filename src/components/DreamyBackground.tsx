@@ -3,7 +3,8 @@
 // Pure React Native Views + Animated so no native/binary assets are required.
 import React, { useEffect, useRef } from 'react';
 import { Animated, Easing, StyleSheet, View } from 'react-native';
-import { useApp } from '../context/AppContext';
+import { useApp } from '../context/useAppContext';
+import { USE_NATIVE_DRIVER } from '../utils/animation';
 
 interface CloudProps {
   top: `${number}%`;
@@ -33,13 +34,13 @@ const FluffyCloud: React.FC<CloudProps> = ({
           toValue: 1,
           duration,
           easing: Easing.inOut(Easing.sin),
-          useNativeDriver: true,
+          useNativeDriver: USE_NATIVE_DRIVER,
         }),
         Animated.timing(drift, {
           toValue: 0,
           duration,
           easing: Easing.inOut(Easing.sin),
-          useNativeDriver: true,
+          useNativeDriver: USE_NATIVE_DRIVER,
         }),
       ])
     );
@@ -115,14 +116,14 @@ export const DreamyBackground: React.FC<DreamyBackgroundProps> = ({ forceMode, s
   useEffect(() => {
     const loopA = Animated.loop(
       Animated.sequence([
-        Animated.timing(twinkleA, { toValue: 1, duration: 1600, useNativeDriver: true }),
-        Animated.timing(twinkleA, { toValue: 0.3, duration: 1600, useNativeDriver: true }),
+        Animated.timing(twinkleA, { toValue: 1, duration: 1600, useNativeDriver: USE_NATIVE_DRIVER }),
+        Animated.timing(twinkleA, { toValue: 0.3, duration: 1600, useNativeDriver: USE_NATIVE_DRIVER }),
       ])
     );
     const loopB = Animated.loop(
       Animated.sequence([
-        Animated.timing(twinkleB, { toValue: 0.25, duration: 2100, useNativeDriver: true }),
-        Animated.timing(twinkleB, { toValue: 1, duration: 2100, useNativeDriver: true }),
+        Animated.timing(twinkleB, { toValue: 0.25, duration: 2100, useNativeDriver: USE_NATIVE_DRIVER }),
+        Animated.timing(twinkleB, { toValue: 1, duration: 2100, useNativeDriver: USE_NATIVE_DRIVER }),
       ])
     );
     const loopFloat = Animated.loop(
@@ -131,13 +132,13 @@ export const DreamyBackground: React.FC<DreamyBackgroundProps> = ({ forceMode, s
           toValue: 1,
           duration: 3600,
           easing: Easing.inOut(Easing.quad),
-          useNativeDriver: true,
+          useNativeDriver: USE_NATIVE_DRIVER,
         }),
         Animated.timing(floatAnim, {
           toValue: 0,
           duration: 3600,
           easing: Easing.inOut(Easing.quad),
-          useNativeDriver: true,
+          useNativeDriver: USE_NATIVE_DRIVER,
         }),
       ])
     );

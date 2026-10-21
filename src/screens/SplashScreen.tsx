@@ -4,10 +4,11 @@ import { Animated, Image, Text, View, StyleSheet } from 'react-native';
 import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/types';
 import { useApp } from '../context/AppContext';
-import { Ollie } from '../components/Ollie';
+import { WiseOwl } from '../components/WiseOwl';
 import { DreamyBackground } from '../components/DreamyBackground';
 import { DEFAULT_CHANNEL_LOGO_URL } from '../data/videos';
 import { RADIUS, TYPOGRAPHY } from '../theme/theme';
+import { USE_NATIVE_DRIVER } from '../utils/animation';
 import * as ExpoSplashScreen from 'expo-splash-screen';
 
 const LOCAL_CHANNEL_ICON = require('../../assets/channel-icon.png');
@@ -28,8 +29,8 @@ export const SplashScreen: React.FC<Props> = ({ navigation }) => {
     let cancelled = false;
     Animated.loop(
       Animated.sequence([
-        Animated.timing(twinkle, { toValue: 1, duration: 700, useNativeDriver: true }),
-        Animated.timing(twinkle, { toValue: 0.3, duration: 700, useNativeDriver: true }),
+        Animated.timing(twinkle, { toValue: 1, duration: 700, useNativeDriver: USE_NATIVE_DRIVER }),
+        Animated.timing(twinkle, { toValue: 0.3, duration: 700, useNativeDriver: USE_NATIVE_DRIVER }),
       ])
     ).start();
     Animated.timing(progress, { toValue: 1, duration: 2000, useNativeDriver: false }).start();
@@ -55,7 +56,7 @@ export const SplashScreen: React.FC<Props> = ({ navigation }) => {
           ✨
         </Animated.Text>
       ))}
-      <Ollie size={200} waving />
+      <WiseOwl size={200} waving />
       <View style={[styles.branch, { backgroundColor: '#8D5B3A' }]} />
       <Text style={[styles.title, { color: colors.textPrimary }]}>WiseToons for Kids</Text>
       <View style={[styles.track, { backgroundColor: colors.cardBorder }]}>

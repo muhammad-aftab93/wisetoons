@@ -13,6 +13,8 @@ A kid-safe, COPPA-compliant, and YouTube API Services ToS-compliant cross-platfo
 - **Commercial Kids UI & Theme System**:
   - **Playtime (Day)** & **Bedtime (Night)** high-contrast themes designed for young learners (`Fredoka` rounded typography, large touch targets, Google `MaterialIcons` & `Ionicons`).
   - **Responsive Grid & Detail List Toggle**: Displays 3–4 video cards per row in `Cards` (`grid`) mode or a detailed horizontal layout in `List` (`list`) mode.
+- **Interactive Kids Games Hub (`KidsGamesHub`)**:
+  - Kid-safe, offline-ready interactive mini games (e.g. *Ollie's Memory Match* card pairing and *Pop Stars & Balloons* coordination game) accessible via the dedicated **Kids Games** tab at the end of the category bar.
 - **Strict YouTube Player Compliance (`VideoTheaterScreen`)**:
   - **Zero-Pixel Overlay Policy**: The 16:9 YouTube player (`react-native-youtube-iframe` on iOS/Android, official YouTube IFrame API on Web) sits inside an unobstructed viewport with `0px` overlap from custom UI controls.
   - **Automatic Playback Pause**: Immediately pauses video playback when the app moves to the background, loses navigation focus, or opens the Parental Gate or Bedtime Sleep modal.

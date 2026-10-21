@@ -15,10 +15,11 @@ import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { RootStackParamList } from '../navigation/types';
 import { useApp } from '../context/AppContext';
 import { VideoCard, ViewModeToggle } from '../components/VideoCard';
-import { Ollie } from '../components/Ollie';
+import { WiseOwl } from '../components/WiseOwl';
 import { DreamyBackground } from '../components/DreamyBackground';
 import { WiseToonVideo } from '../data/videos';
 import { RADIUS, SPACING, TYPOGRAPHY } from '../theme/theme';
+import { USE_NATIVE_DRIVER } from '../utils/animation';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'LocalFavorites'>;
 
@@ -70,7 +71,7 @@ export const LocalFavoritesScreen: React.FC<Props> = ({ navigation }) => {
 
       {starred.length === 0 ? (
         <View style={styles.empty}>
-          <Ollie size={160} accessory="🔍" />
+          <WiseOwl size={160} accessory="🔍" />
           <Text style={[styles.emptyText, { color: colors.textPrimary }]}>Tap the star on any toon to save it here!</Text>
           <TouchableOpacity
             style={[styles.cta, { backgroundColor: colors.secondaryAccent }]}
@@ -97,7 +98,7 @@ export const LocalFavoritesScreen: React.FC<Props> = ({ navigation }) => {
           scrollEventThrottle={16}
           onScroll={Animated.event(
             [{ nativeEvent: { contentOffset: { y: scrollY } } }],
-            { useNativeDriver: true }
+            { useNativeDriver: USE_NATIVE_DRIVER }
           )}
         />
       )}

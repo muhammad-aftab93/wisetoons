@@ -61,7 +61,7 @@ export const ParentDashboardScreen: React.FC<Props> = ({ navigation }) => {
           <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>Bedtime Sleep Timer</Text>
           <Text style={[styles.hint, { color: colors.textSecondary }]}>
             {sleepMinutes > 0
-              ? `Ollie goes to sleep in about ${remainingMin} min.`
+              ? `Sleep timer goes off in about ${remainingMin} min.`
               : 'Off. Pick a time and the video will pause with a goodnight screen.'}
           </Text>
           <View style={styles.pills}>

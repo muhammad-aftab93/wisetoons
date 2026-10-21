@@ -403,17 +403,10 @@ class YouTubeApiService {
       }
     }
 
-    const sections: CatalogSection[] = [
-      {
-        id: ALL_SECTION_ID,
-        title: 'All Toons',
-        kind: 'all',
-        videoIds: allVideosNewestFirst.map((v) => v.videoId),
-      },
-    ];
+    const sections: CatalogSection[] = [];
 
-    // NOTE: "Videos" and "Shorts" categories are removed as standalone menu items.
-    // Both long-form videos and shorts appear collectively under their respective playlists (Rhymes or Bedtime Stories).
+    // NOTE: Standalone "All Toons", "Videos", and "Shorts" categories are removed.
+    // Content is categorized into Rhymes, Bedtime Stories, and Kids Games.
 
     for (const pl of playlistWithItems) {
       const validIds = filterPlayable(pl.videoIds);
@@ -433,6 +426,22 @@ class YouTubeApiService {
         });
       }
     }
+
+    // Add "Kids Games"
+    sections.push({
+      id: 'games',
+      title: 'Kids Games',
+      kind: 'games',
+      videoIds: [],
+    });
+
+    // Add "Education" / "Learn"
+    sections.push({
+      id: 'education',
+      title: 'Learn & Explore',
+      kind: 'education',
+      videoIds: [],
+    });
 
     return {
       videos: allVideosNewestFirst,

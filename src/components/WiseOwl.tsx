@@ -1,18 +1,18 @@
-// src/components/Ollie.tsx
-// Ollie the Wise Little Owl, drawn with Views so no binary assets are required.
-// Swap for a Lottie/PNG mascot later without changing call sites.
+// src/components/WiseOwl.tsx
+// Wise Little Owl mascot, drawn with Views so no binary assets are required.
 import React, { useEffect, useRef } from 'react';
 import { Animated, Easing, View, Text, StyleSheet } from 'react-native';
+import { USE_NATIVE_DRIVER } from '../utils/animation';
 
 interface Props {
   size?: number;
   sleeping?: boolean;
   waving?: boolean;
-  /** Accessory shown next to Ollie, e.g. '🔍' */
+  /** Accessory shown next to owl, e.g. '🔍' */
   accessory?: string;
 }
 
-export const Ollie: React.FC<Props> = ({ size = 120, sleeping = false, waving = false, accessory }) => {
+export const WiseOwl: React.FC<Props> = ({ size = 120, sleeping = false, waving = false, accessory }) => {
   const bob = useRef(new Animated.Value(0)).current;
   const wave = useRef(new Animated.Value(0)).current;
   const blink = useRef(new Animated.Value(1)).current;
@@ -21,8 +21,8 @@ export const Ollie: React.FC<Props> = ({ size = 120, sleeping = false, waving = 
   useEffect(() => {
     const bobLoop = Animated.loop(
       Animated.sequence([
-        Animated.timing(bob, { toValue: 1, duration: 1400, easing: Easing.inOut(Easing.quad), useNativeDriver: true }),
-        Animated.timing(bob, { toValue: 0, duration: 1400, easing: Easing.inOut(Easing.quad), useNativeDriver: true }),
+        Animated.timing(bob, { toValue: 1, duration: 1400, easing: Easing.inOut(Easing.quad), useNativeDriver: USE_NATIVE_DRIVER }),
+        Animated.timing(bob, { toValue: 0, duration: 1400, easing: Easing.inOut(Easing.quad), useNativeDriver: USE_NATIVE_DRIVER }),
       ])
     );
     bobLoop.start();
@@ -30,9 +30,9 @@ export const Ollie: React.FC<Props> = ({ size = 120, sleeping = false, waving = 
     const tuftLoop = Animated.loop(
       Animated.sequence([
         Animated.delay(1800),
-        Animated.timing(tuftWiggle, { toValue: 1, duration: 220, useNativeDriver: true }),
-        Animated.timing(tuftWiggle, { toValue: -1, duration: 220, useNativeDriver: true }),
-        Animated.timing(tuftWiggle, { toValue: 0, duration: 200, useNativeDriver: true }),
+        Animated.timing(tuftWiggle, { toValue: 1, duration: 220, useNativeDriver: USE_NATIVE_DRIVER }),
+        Animated.timing(tuftWiggle, { toValue: -1, duration: 220, useNativeDriver: USE_NATIVE_DRIVER }),
+        Animated.timing(tuftWiggle, { toValue: 0, duration: 200, useNativeDriver: USE_NATIVE_DRIVER }),
       ])
     );
     tuftLoop.start();
@@ -42,11 +42,11 @@ export const Ollie: React.FC<Props> = ({ size = 120, sleeping = false, waving = 
       blinkLoop = Animated.loop(
         Animated.sequence([
           Animated.delay(2600),
-          Animated.timing(blink, { toValue: 0.08, duration: 110, useNativeDriver: true }),
-          Animated.timing(blink, { toValue: 1, duration: 140, useNativeDriver: true }),
+          Animated.timing(blink, { toValue: 0.08, duration: 110, useNativeDriver: USE_NATIVE_DRIVER }),
+          Animated.timing(blink, { toValue: 1, duration: 140, useNativeDriver: USE_NATIVE_DRIVER }),
           Animated.delay(180),
-          Animated.timing(blink, { toValue: 0.08, duration: 100, useNativeDriver: true }),
-          Animated.timing(blink, { toValue: 1, duration: 140, useNativeDriver: true }),
+          Animated.timing(blink, { toValue: 0.08, duration: 100, useNativeDriver: USE_NATIVE_DRIVER }),
+          Animated.timing(blink, { toValue: 1, duration: 140, useNativeDriver: USE_NATIVE_DRIVER }),
         ])
       );
       blinkLoop.start();
@@ -56,8 +56,8 @@ export const Ollie: React.FC<Props> = ({ size = 120, sleeping = false, waving = 
     if (waving) {
       waveLoop = Animated.loop(
         Animated.sequence([
-          Animated.timing(wave, { toValue: 1, duration: 350, useNativeDriver: true }),
-          Animated.timing(wave, { toValue: 0, duration: 350, useNativeDriver: true }),
+          Animated.timing(wave, { toValue: 1, duration: 350, useNativeDriver: USE_NATIVE_DRIVER }),
+          Animated.timing(wave, { toValue: 0, duration: 350, useNativeDriver: USE_NATIVE_DRIVER }),
         ])
       );
       waveLoop.start();
@@ -78,7 +78,7 @@ export const Ollie: React.FC<Props> = ({ size = 120, sleeping = false, waving = 
   return (
     <Animated.View
       style={{ transform: [{ translateY: bob.interpolate({ inputRange: [0, 1], outputRange: [0, -s * 0.06] }) }] }}
-      accessibilityLabel="Ollie the owl"
+      accessibilityLabel="Wise Owl mascot"
     >
       <View style={{ width: s, height: s, alignItems: 'center' }}>
         {/* ear tufts */}
@@ -142,6 +142,8 @@ export const Ollie: React.FC<Props> = ({ size = 120, sleeping = false, waving = 
   );
 };
 
+// src/components/WiseOwl.tsx
+
 const styles = StyleSheet.create({
   tuft: { position: 'absolute', backgroundColor: '#8D5B3A', borderRadius: 6, transform: [{ rotate: '35deg' }] },
   body: { position: 'absolute', backgroundColor: '#A9744F', alignItems: 'center', overflow: 'hidden' },
@@ -159,4 +161,3 @@ const styles = StyleSheet.create({
     borderTopColor: '#FFB703',
   },
 });
-

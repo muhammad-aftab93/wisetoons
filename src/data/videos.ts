@@ -13,7 +13,7 @@ export interface WiseToonVideo {
 export interface CatalogSection {
   id: string;
   title: string;
-  kind: 'all' | 'videos' | 'shorts' | 'playlist';
+  kind: 'all' | 'videos' | 'shorts' | 'playlist' | 'games' | 'education';
   videoIds: string[];
 }
 
@@ -35,15 +35,15 @@ export const DEFAULT_CHANNEL_LOGO_URL =
 const BUNDLED_VIDEOS: WiseToonVideo[] = [
   {
     videoId: 'veRPqMxNnDo',
-    title: "Ollie Owl & the Moon's Lost Button",
+    title: "Little Owl & the Moon's Lost Button",
     duration: '02:50',
     publishedAt: '2026-10-01T00:00:00Z',
     isShort: false,
     lyricsOrStory: [
-      '🎵 Verse 1:\nWhen the blue dusk folded up the day\nAnd tucked the golden sun away,\nOllie Owl heard plink! below—\nA silver button in the snow.',
-      '✨ Chorus:\nOllie, Ollie, little owl,\nFluff your feathers, lift your brow.\nThrough the hush and through the blue,\nThere’s a moonlit mystery for you.\nHoo-hoo, hello! Hoo-hoo, hey!\nOllie will find the way.',
+      '🎵 Verse 1:\nWhen the blue dusk folded up the day\nAnd tucked the golden sun away,\nLittle Owl heard plink! below—\nA silver button in the snow.',
+      '✨ Chorus:\nLittle, little, friendly owl,\nFluff your feathers, lift your brow.\nThrough the hush and through the blue,\nThere’s a moonlit mystery for you.\nHoo-hoo, hello! Hoo-hoo, hey!\nLittle Owl will find the way.',
       '🦊 Verse 2:\nHe asked the fox beside the stream,\n“Did you drop a button in your dream?”\nThe fox shook out his russet coat:\n“No button here—just one lost note!”',
-      '🌙 Bridge & Outro:\nOne little wish for the wind to rest.\nOne little feather, soft as a nest.\n“Goodnight, bright button. Goodnight, sky.”\nThe Moon winked once—and Ollie sighed.\nHoo-hoo… Goodnight.',
+      '🌙 Bridge & Outro:\nOne little wish for the wind to rest.\nOne little feather, soft as a nest.\n“Goodnight, bright button. Goodnight, sky.”\nThe Moon winked once—and Little Owl sighed.\nHoo-hoo… Goodnight.',
     ],
   },
   {
@@ -53,10 +53,10 @@ const BUNDLED_VIDEOS: WiseToonVideo[] = [
     publishedAt: '2026-09-30T00:00:00Z',
     isShort: false,
     lyricsOrStory: [
-      '🦉 Scene 1:\nHush, little listeners. High up in the branches of the grand oak tree, a little owl named Ollie blinks his big, round golden eyes as the sky turns deep, velvety blue.',
-      '🦋 Scene 2:\n“Hoo-hoo, little one,” hums Luna, the wise old moth. “The dark is not empty, Ollie. It is just the world resting. Look up at the velvet ceiling of our home.”',
+      '🦉 Scene 1:\nHush, little listeners. High up in the branches of the grand oak tree, a little owl blinks his big, round golden eyes as the sky turns deep, velvety blue.',
+      '🦋 Scene 2:\n“Hoo-hoo, little one,” hums Luna, the wise old moth. “The dark is not empty. It is just the world resting. Look up at the velvet ceiling of our home.”',
       '⭐ Scene 3:\nOne by one, tiny silver stars begin to blink and sparkle in the deep night sky, like little glowing nightlights placed there just for him.',
-      '💤 Goodnight:\nOllie tucks his head comfortably beneath his wing. The night is safe, the night is kind. Sweet dreams, and sleep tight.',
+      '💤 Goodnight:\nThe little owl tucks his head comfortably beneath his wing. The night is safe, the night is kind. Sweet dreams, and sleep tight.',
     ],
   },
 ];
@@ -64,9 +64,10 @@ const BUNDLED_VIDEOS: WiseToonVideo[] = [
 export const BUNDLED_CATALOG: Catalog = {
   videos: BUNDLED_VIDEOS,
   sections: [
-    { id: ALL_SECTION_ID, title: 'All Toons', kind: 'all', videoIds: BUNDLED_VIDEOS.map((v) => v.videoId) },
     { id: 'bundled-rhymes', title: 'Rhymes', kind: 'playlist', videoIds: [BUNDLED_VIDEOS[0].videoId] },
     { id: 'bundled-stories', title: 'Bedtime Stories', kind: 'playlist', videoIds: [BUNDLED_VIDEOS[1].videoId] },
+    { id: 'games', title: 'Kids Games', kind: 'games', videoIds: [] },
+    { id: 'education', title: 'Learn & Explore', kind: 'education', videoIds: [] },
   ],
 };
 

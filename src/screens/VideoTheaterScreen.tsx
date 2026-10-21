@@ -23,6 +23,7 @@ import { RootStackParamList } from '../navigation/types';
 import { useApp } from '../context/AppContext';
 import { WiseToonVideo } from '../data/videos';
 import { RADIUS, SPACING, TYPOGRAPHY, ThemeColors } from '../theme/theme';
+import { USE_NATIVE_DRIVER } from '../utils/animation';
 
 type Props = NativeStackScreenProps<RootStackParamList, 'VideoTheater'>;
 
@@ -46,7 +47,7 @@ const RecommendedItem: React.FC<RecommendedItemProps> = React.memo(
         toValue: 0.95,
         friction: 6,
         tension: 140,
-        useNativeDriver: true,
+        useNativeDriver: USE_NATIVE_DRIVER,
       }).start();
     };
 
@@ -55,7 +56,7 @@ const RecommendedItem: React.FC<RecommendedItemProps> = React.memo(
         toValue: 1,
         friction: 4,
         tension: 110,
-        useNativeDriver: true,
+        useNativeDriver: USE_NATIVE_DRIVER,
       }).start();
     };
 
@@ -172,13 +173,13 @@ export const VideoTheaterScreen: React.FC<Props> = ({ navigation, route }) => {
     starRotate.setValue(0);
     Animated.parallel([
       Animated.sequence([
-        Animated.spring(starScale, { toValue: 1.38, friction: 3, tension: 160, useNativeDriver: true }),
-        Animated.spring(starScale, { toValue: 1, friction: 4, tension: 120, useNativeDriver: true }),
+        Animated.spring(starScale, { toValue: 1.38, friction: 3, tension: 160, useNativeDriver: USE_NATIVE_DRIVER }),
+        Animated.spring(starScale, { toValue: 1, friction: 4, tension: 120, useNativeDriver: USE_NATIVE_DRIVER }),
       ]),
       Animated.sequence([
-        Animated.timing(starRotate, { toValue: -1, duration: 90, useNativeDriver: true }),
-        Animated.timing(starRotate, { toValue: 1, duration: 120, useNativeDriver: true }),
-        Animated.timing(starRotate, { toValue: 0, duration: 90, useNativeDriver: true }),
+        Animated.timing(starRotate, { toValue: -1, duration: 90, useNativeDriver: USE_NATIVE_DRIVER }),
+        Animated.timing(starRotate, { toValue: 1, duration: 120, useNativeDriver: USE_NATIVE_DRIVER }),
+        Animated.timing(starRotate, { toValue: 0, duration: 90, useNativeDriver: USE_NATIVE_DRIVER }),
       ]),
     ]).start();
   };
@@ -195,8 +196,8 @@ export const VideoTheaterScreen: React.FC<Props> = ({ navigation, route }) => {
         <Animated.View style={{ transform: [{ scale: backScale }] }}>
           <TouchableOpacity
             style={[styles.btn, { backgroundColor: colors.primaryAccent }]}
-            onPressIn={() => Animated.spring(backScale, { toValue: 0.88, useNativeDriver: true }).start()}
-            onPressOut={() => Animated.spring(backScale, { toValue: 1, friction: 4, useNativeDriver: true }).start()}
+            onPressIn={() => Animated.spring(backScale, { toValue: 0.88, useNativeDriver: USE_NATIVE_DRIVER }).start()}
+            onPressOut={() => Animated.spring(backScale, { toValue: 1, friction: 4, useNativeDriver: USE_NATIVE_DRIVER }).start()}
             onPress={() => {
               setIsPlaying(false);
               navigation.goBack();
@@ -258,7 +259,7 @@ export const VideoTheaterScreen: React.FC<Props> = ({ navigation, route }) => {
           onScrollToIndexFailed={() => {}}
           onScroll={Animated.event(
             [{ nativeEvent: { contentOffset: { y: scrollY } } }],
-            { useNativeDriver: true }
+            { useNativeDriver: USE_NATIVE_DRIVER }
           )}
         />
       </View>

@@ -10,7 +10,7 @@ const KEYS = {
   SETTINGS: '@wisetoons_settings_v1',
   FAVORITE_IDS: '@wisetoons_favorites',
   FAVORITE_VIDEOS: '@wisetoons_favorite_videos_v1',
-  CATALOG_CACHE: '@wisetoons_catalog_v5',
+  CATALOG_CACHE: '@wisetoons_catalog_v8',
   // Legacy individual keys for seamless migration
   LEGACY_THEME: '@wisetoons_theme',
   LEGACY_VIEW_MODE: '@wisetoons_view_mode',
@@ -29,7 +29,7 @@ export const DEFAULT_SETTINGS: PersistedSettings = {
   viewMode: 'grid',
   sleepMinutes: 0,
   sleepEndAt: null,
-  selectedSectionId: ALL_SECTION_ID,
+  selectedSectionId: 'menu',
 };
 
 async function safeGetJson<T>(key: string): Promise<T | null> {
@@ -68,9 +68,10 @@ export const storageService = {
           typeof saved.selectedSectionId === 'string' &&
           saved.selectedSectionId !== 'videos' &&
           saved.selectedSectionId !== 'shorts' &&
+          saved.selectedSectionId !== 'all' &&
           saved.selectedSectionId
             ? saved.selectedSectionId
-            : ALL_SECTION_ID,
+            : 'menu',
       };
     }
 
@@ -143,6 +144,22 @@ export const storageService = {
       cached.catalog.sections = cached.catalog.sections.filter(
         (s) => s.id !== 'videos' && s.id !== 'shorts' && s.kind !== 'videos' && s.kind !== 'shorts'
       );
+      if (!cached.catalog.sections.some((s) => s.id === 'games')) {
+        cached.catalog.sections.push({
+          id: 'games',
+          title: 'Kids Games',
+          kind: 'games',
+          videoIds: [],
+        });
+      }
+      if (!cached.catalog.sections.some((s) => s.id === 'education')) {
+        cached.catalog.sections.push({
+          id: 'education',
+          title: 'Learn & Explore',
+          kind: 'education',
+          videoIds: [],
+        });
+      }
     }
     return cached;
   },

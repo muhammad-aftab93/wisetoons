@@ -1,7 +1,7 @@
 // src/components/SleepOverlayModal.tsx
 import React from 'react';
 import { Modal, View, Text, TouchableOpacity, StyleSheet } from 'react-native';
-import { Ollie } from './Ollie';
+import { WiseOwl } from './WiseOwl';
 import { DreamyBackground } from './DreamyBackground';
 
 interface Props {
@@ -15,11 +15,11 @@ export const SleepOverlayModal: React.FC<Props> = ({ visible, onWake }) => (
     <View style={styles.container}>
       <DreamyBackground forceMode="night" />
       <Text style={styles.stars}>✨ ⭐ ✨ ⭐ ✨</Text>
-      <Ollie size={140} sleeping />
-      <Text style={styles.title}>Time for Sleep with Ollie!</Text>
-      <Text style={styles.sub}>Ollie is fast asleep — Goodnight! 🌙</Text>
+      <WiseOwl size={140} sleeping />
+      <Text style={styles.title}>Time for Sleep!</Text>
+      <Text style={styles.sub}>Sweet dreams and sleep tight — Goodnight! 🌙</Text>
       <TouchableOpacity style={styles.btn} onPress={onWake} accessibilityLabel="Grown-up wake up">
-        <Text style={styles.btnText}>Grown-ups: Wake Ollie</Text>
+        <Text style={styles.btnText}>Grown-ups: Wake Up</Text>
       </TouchableOpacity>
     </View>
   </Modal>
