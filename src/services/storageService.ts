@@ -10,7 +10,7 @@ const KEYS = {
   SETTINGS: '@wisetoons_settings_v1',
   FAVORITE_IDS: '@wisetoons_favorites',
   FAVORITE_VIDEOS: '@wisetoons_favorite_videos_v1',
-  CATALOG_CACHE: '@wisetoons_catalog_v4',
+  CATALOG_CACHE: '@wisetoons_catalog_v5',
   // Legacy individual keys for seamless migration
   LEGACY_THEME: '@wisetoons_theme',
   LEGACY_VIEW_MODE: '@wisetoons_view_mode',
@@ -65,7 +65,10 @@ export const storageService = {
         sleepEndAt:
           typeof saved.sleepEndAt === 'number' ? saved.sleepEndAt : null,
         selectedSectionId:
-          typeof saved.selectedSectionId === 'string' && saved.selectedSectionId
+          typeof saved.selectedSectionId === 'string' &&
+          saved.selectedSectionId !== 'videos' &&
+          saved.selectedSectionId !== 'shorts' &&
+          saved.selectedSectionId
             ? saved.selectedSectionId
             : ALL_SECTION_ID,
       };
@@ -133,7 +136,15 @@ export const storageService = {
 
   /** Loads cached YouTube channel catalog from local storage. */
   async loadCatalogCache(): Promise<{ fetchedAt: number; catalog: Catalog } | null> {
-    return safeGetJson<{ fetchedAt: number; catalog: Catalog }>(KEYS.CATALOG_CACHE);
+    const cached = await safeGetJson<{ fetchedAt: number; catalog: Catalog }>(KEYS.CATALOG_CACHE);
+    if (!cached || !cached.catalog) return null;
+    // Strip any legacy 'videos' or 'shorts' sections from cached catalog
+    if (Array.isArray(cached.catalog.sections)) {
+      cached.catalog.sections = cached.catalog.sections.filter(
+        (s) => s.id !== 'videos' && s.id !== 'shorts' && s.kind !== 'videos' && s.kind !== 'shorts'
+      );
+    }
+    return cached;
   },
 
   /** Saves YouTube channel catalog to local storage. */

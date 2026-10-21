@@ -376,6 +376,33 @@ class YouTubeApiService {
           Date.parse(byId.get(a)!.publishedAt)
       );
 
+    // Ensure all uploads (both long-form videos and shorts) are represented under the right playlist
+    const rhymesPlaylist = playlistWithItems.find((pl) =>
+      /rhym|song|sing|music|nursery/i.test(pl.title)
+    );
+    const storiesPlaylist = playlistWithItems.find((pl) =>
+      /story|stories|tale|moral|bedtime|sleep/i.test(pl.title)
+    );
+
+    // Collect all video IDs currently assigned to any playlist
+    const assignedIds = new Set(playlistWithItems.flatMap((p) => p.videoIds));
+
+    // Any video or short from channel uploads not explicitly placed in a playlist is automatically routed
+    for (const video of allVideosNewestFirst) {
+      if (!assignedIds.has(video.videoId)) {
+        const text = `${video.title} ${(video.lyricsOrStory || []).join(' ')}`.toLowerCase();
+        const isRhyme = /rhym|song|sing|music|nursery|lullaby|shark|dance|tune|jingle/.test(text);
+        if (isRhyme) {
+          const target = rhymesPlaylist ?? playlistWithItems[0];
+          target?.videoIds.push(video.videoId);
+        } else {
+          const target = storiesPlaylist ?? playlistWithItems[1] ?? playlistWithItems[0];
+          target?.videoIds.push(video.videoId);
+        }
+        assignedIds.add(video.videoId);
+      }
+    }
+
     const sections: CatalogSection[] = [
       {
         id: ALL_SECTION_ID,
@@ -385,37 +412,24 @@ class YouTubeApiService {
       },
     ];
 
-    const videosTabIds =
-      longFormIds.length > 0
-        ? sortNewestFirst(longFormIds)
-        : allVideosNewestFirst.filter((v) => !v.isShort).map((v) => v.videoId);
-    if (videosTabIds.length > 0) {
-      sections.push({
-        id: 'videos',
-        title: 'Videos',
-        kind: 'videos',
-        videoIds: videosTabIds,
-      });
-    }
-
-    const shortsTabIds = sortNewestFirst(shortIds);
-    if (shortsTabIds.length > 0) {
-      sections.push({
-        id: 'shorts',
-        title: 'Shorts',
-        kind: 'shorts',
-        videoIds: shortsTabIds,
-      });
-    }
+    // NOTE: "Videos" and "Shorts" categories are removed as standalone menu items.
+    // Both long-form videos and shorts appear collectively under their respective playlists (Rhymes or Bedtime Stories).
 
     for (const pl of playlistWithItems) {
       const validIds = filterPlayable(pl.videoIds);
-      if (validIds.length > 0) {
+      // Deduplicate and order newest first so recent uploads appear at the top
+      const sortedIds = Array.from(new Set(validIds)).sort((a, b) => {
+        const timeA = Date.parse(byId.get(a)?.publishedAt || '') || 0;
+        const timeB = Date.parse(byId.get(b)?.publishedAt || '') || 0;
+        return timeB - timeA;
+      });
+
+      if (sortedIds.length > 0) {
         sections.push({
           id: pl.id,
           title: pl.title,
           kind: 'playlist',
-          videoIds: validIds,
+          videoIds: sortedIds,
         });
       }
     }

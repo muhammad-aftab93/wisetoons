@@ -7,7 +7,7 @@ A kid-safe, COPPA-compliant, and YouTube API Services ToS-compliant cross-platfo
 ## ✨ Key Features
 
 - **Live YouTube Data API v3 Integration**:
-  - Dynamically resolves the `@WiseToons_for_Kids` channel (`UCjg4bYwHHGwrHpGYXxSZGRA`), official channel avatar, uploads playlist (`UU...`), long-form **Videos** (`UULF...`), **Shorts** (`UUSH...`), and all public channel **Playlists** (e.g., *Rhymes*, *Little Owl Ollie Bedtime Stories & Moral Tales for Kids*).
+  - Dynamically resolves the `@WiseToons_for_Kids` channel (`UCjg4bYwHHGwrHpGYXxSZGRA`), official channel avatar, uploads, and playlists (*Rhymes*, *Bedtime Stories*), automatically grouping both shorts and long-form videos together under their respective playlist themes without cluttering the menu with redundant format tabs.
   - Batches `/youtube/v3/videos` requests (`snippet`, `contentDetails`, `statistics`) to parse ISO-8601 durations, view counts, descriptions, and high-resolution thumbnails.
   - Falls back gracefully to a cached or offline catalog if the device loses connectivity.
 - **Commercial Kids UI & Theme System**:

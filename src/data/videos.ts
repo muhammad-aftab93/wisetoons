@@ -65,6 +65,8 @@ export const BUNDLED_CATALOG: Catalog = {
   videos: BUNDLED_VIDEOS,
   sections: [
     { id: ALL_SECTION_ID, title: 'All Toons', kind: 'all', videoIds: BUNDLED_VIDEOS.map((v) => v.videoId) },
+    { id: 'bundled-rhymes', title: 'Rhymes', kind: 'playlist', videoIds: [BUNDLED_VIDEOS[0].videoId] },
+    { id: 'bundled-stories', title: 'Bedtime Stories', kind: 'playlist', videoIds: [BUNDLED_VIDEOS[1].videoId] },
   ],
 };
 
