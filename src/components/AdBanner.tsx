@@ -70,7 +70,7 @@ export const AdBanner: React.FC<AdBannerProps> = ({
               requestNonPersonalizedAdsOnly: true,
             }}
             onAdFailedToLoad={(err: any) => {
-              console.warn('[AdMob Banner] Failed to load:', err);
+              console.log('[AdMob Banner] Ad not served (normal during 24-48h account review or low fill):', err?.message || err);
               setAdFailed(true);
             }}
           />
