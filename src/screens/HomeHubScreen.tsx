@@ -23,6 +23,7 @@ import { WiseOwl } from '../components/WiseOwl';
 import { DreamyBackground } from '../components/DreamyBackground';
 import { KidsGamesHub } from '../components/KidsGamesHub';
 import { KidsLearnHub } from '../components/KidsLearnHub';
+import { AdBanner } from '../components/AdBanner';
 import { ALL_SECTION_ID, CatalogSection, DEFAULT_CHANNEL_LOGO_URL } from '../data/videos';
 import { RADIUS, SPACING, TYPOGRAPHY } from '../theme/theme';
 import { USE_NATIVE_DRIVER } from '../utils/animation';
@@ -142,7 +143,7 @@ export const HomeHubScreen: React.FC<Props> = ({ navigation }) => {
     requestGate,
   } = useApp();
   const { width } = useWindowDimensions();
-  const gridColumns = width >= 900 ? 4 : 3;
+  const gridColumns = width >= 1024 ? 4 : width >= 600 ? 3 : 2;
   const columns = viewMode === 'list' ? 1 : gridColumns;
   const compact = width < 520;
   const narrow = width < 340;
@@ -278,13 +279,16 @@ export const HomeHubScreen: React.FC<Props> = ({ navigation }) => {
     () =>
       !!active && active.kind !== 'games' ? (
         <View style={styles.sectionRow}>
-          <Text style={[styles.section, { color: colors.textPrimary }]} numberOfLines={1}>
+          <Text
+            style={[styles.section, compact && styles.sectionCompact, { color: colors.textPrimary }]}
+            numberOfLines={1}
+          >
             {active.title}
           </Text>
           <ViewModeToggle />
         </View>
       ) : undefined,
-    [active, colors.textPrimary]
+    [active, colors.textPrimary, compact]
   );
 
   return (
@@ -326,7 +330,7 @@ export const HomeHubScreen: React.FC<Props> = ({ navigation }) => {
             resizeMode="cover"
           />
           <Text style={[styles.logoText, { color: colors.textPrimary }]} numberOfLines={1}>
-            {!isMenu && active?.title ? active.title : 'WiseToons'}
+            {compact ? 'WiseToons' : (!isMenu && active?.title ? active.title : 'WiseToons')}
           </Text>
         </View>
 
@@ -512,6 +516,9 @@ export const HomeHubScreen: React.FC<Props> = ({ navigation }) => {
           </TouchableOpacity>
         </Animated.View>
       )}
+
+      {/* Google AdMob Family-Safe Banner */}
+      <AdBanner />
     </SafeAreaView>
   );
 };
@@ -679,7 +686,7 @@ const styles = StyleSheet.create({
   iconBtnNarrow: { width: 32 },
   lockText: { fontFamily: TYPOGRAPHY.fontFamily.regular, fontSize: 10, marginTop: 1 },
   listContent: { paddingHorizontal: SPACING.md, paddingBottom: SPACING.xl },
-  gamesScrollContent: { paddingHorizontal: SPACING.md, paddingTop: SPACING.sm, paddingBottom: SPACING.xl },
+  gamesScrollContent: { paddingHorizontal: 6, paddingTop: SPACING.xs, paddingBottom: SPACING.md },
   sectionRow: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -691,7 +698,10 @@ const styles = StyleSheet.create({
   section: {
     flex: 1,
     fontFamily: TYPOGRAPHY.fontFamily.bold,
-    fontSize: 15,
+    fontSize: 18,
+  },
+  sectionCompact: {
+    fontSize: 16,
   },
   emptyWrap: { alignItems: 'center', paddingVertical: SPACING.xl, gap: SPACING.md },
   empty: { fontFamily: TYPOGRAPHY.fontFamily.regular, fontSize: TYPOGRAPHY.sizes.body, textAlign: 'center' },

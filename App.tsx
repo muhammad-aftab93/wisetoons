@@ -15,6 +15,7 @@ import { HomeHubScreen } from './src/screens/HomeHubScreen';
 import { VideoTheaterScreen } from './src/screens/VideoTheaterScreen';
 import { LocalFavoritesScreen } from './src/screens/LocalFavoritesScreen';
 import { ParentDashboardScreen } from './src/screens/ParentDashboardScreen';
+import { initializeAdMob } from './src/services/adService';
 
 // Prevent native splash screen from auto-hiding until React is ready
 ExpoSplashScreen.preventAutoHideAsync().catch(() => {});
@@ -41,6 +42,7 @@ const Root: React.FC = () => {
 
   useEffect(() => {
     SystemUI.setBackgroundColorAsync(colors.background).catch(() => {});
+    initializeAdMob().catch(() => {});
   }, [colors.background]);
 
   return (

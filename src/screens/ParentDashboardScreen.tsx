@@ -99,13 +99,41 @@ export const ParentDashboardScreen: React.FC<Props> = ({ navigation }) => {
         </View>
 
         <View style={[styles.section, { backgroundColor: colors.surface, borderColor: colors.cardBorder }]}>
+          <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>🛡️ AdMob & Family Safety</Text>
+          <Text style={[styles.hint, { color: colors.textSecondary }]}>
+            WiseToons is free for children through family-friendly advertising configured strictly in accordance with Google Play Families Policy and COPPA.
+          </Text>
+          <View style={[styles.adSafetyRow, { backgroundColor: colors.surfaceElevated, borderColor: colors.cardBorder }]}>
+            <Ionicons name="checkmark-circle" size={22} color="#4EBA6F" />
+            <View style={{ flex: 1 }}>
+              <Text style={[styles.adSafetyTitle, { color: colors.textPrimary }]}>COPPA Child-Directed Protection</Text>
+              <Text style={[styles.adSafetySub, { color: colors.textSecondary }]}>Enabled • Tagged for child-directed treatment</Text>
+            </View>
+          </View>
+          <View style={[styles.adSafetyRow, { backgroundColor: colors.surfaceElevated, borderColor: colors.cardBorder }]}>
+            <Ionicons name="checkmark-circle" size={22} color="#4EBA6F" />
+            <View style={{ flex: 1 }}>
+              <Text style={[styles.adSafetyTitle, { color: colors.textPrimary }]}>Strict G-Rating Filter</Text>
+              <Text style={[styles.adSafetySub, { color: colors.textSecondary }]}>Only family & child-appropriate ads are displayed</Text>
+            </View>
+          </View>
+          <View style={[styles.adSafetyRow, { backgroundColor: colors.surfaceElevated, borderColor: colors.cardBorder }]}>
+            <Ionicons name="checkmark-circle" size={22} color="#4EBA6F" />
+            <View style={{ flex: 1 }}>
+              <Text style={[styles.adSafetyTitle, { color: colors.textPrimary }]}>Zero Behavioral Tracking</Text>
+              <Text style={[styles.adSafetySub, { color: colors.textSecondary }]}>Non-personalized ads only • No user profiling</Text>
+            </View>
+          </View>
+        </View>
+
+        <View style={[styles.section, { backgroundColor: colors.surface, borderColor: colors.cardBorder }]}>
           <Text style={[styles.sectionTitle, { color: colors.textPrimary }]}>Legal & Data</Text>
-          <Text style={[styles.hint, { color: colors.textPrimary }]}>This application uses YouTube API Services.</Text>
+          <Text style={[styles.hint, { color: colors.textPrimary }]}>This application uses YouTube API Services & Google Mobile Ads.</Text>
           <LinkButton label="YouTube Terms of Service" url={YOUTUBE_TOS_URL} />
           <LinkButton label="Google Privacy Policy" url={GOOGLE_PRIVACY_URL} />
           <LinkButton label="WiseToons App Privacy Policy" url={APP_PRIVACY_URL} />
           <Text style={[styles.hint, { color: colors.textSecondary }]}>
-            No account, ads or analytics. Favorites are stored only on this device.
+            All starred favorites are stored offline only on this device.
           </Text>
           <TouchableOpacity style={[styles.cta, { backgroundColor: colors.danger }]} onPress={confirmClear}>
             <Text style={[styles.ctaText, { color: '#fff' }]}>Clear Saved Favorites</Text>
@@ -131,5 +159,21 @@ const styles = StyleSheet.create({
   ctaText: { fontFamily: TYPOGRAPHY.fontFamily.bold, fontSize: TYPOGRAPHY.sizes.subtitle - 2, textAlign: 'center' },
   linkBtn: { minHeight: 52, borderRadius: RADIUS.sm, borderWidth: 2, justifyContent: 'center', paddingHorizontal: SPACING.md },
   linkText: { fontFamily: TYPOGRAPHY.fontFamily.regular, fontSize: TYPOGRAPHY.sizes.caption + 2 },
+  adSafetyRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: SPACING.sm,
+    padding: SPACING.sm,
+    borderRadius: RADIUS.md,
+    borderWidth: 1.5,
+  },
+  adSafetyTitle: {
+    fontFamily: TYPOGRAPHY.fontFamily.bold,
+    fontSize: TYPOGRAPHY.sizes.caption + 2,
+  },
+  adSafetySub: {
+    fontFamily: TYPOGRAPHY.fontFamily.regular,
+    fontSize: TYPOGRAPHY.sizes.caption,
+  },
 });
 

@@ -19,6 +19,8 @@ import { NativeStackScreenProps } from '@react-navigation/native-stack';
 import { useIsFocused } from '@react-navigation/native';
 import { YouTubePlayer as YoutubePlayer } from '../components/YouTubePlayer';
 import { DreamyBackground } from '../components/DreamyBackground';
+import { AdBanner } from '../components/AdBanner';
+import { showInterstitialIfAllowed } from '../services/adService';
 import { RootStackParamList } from '../navigation/types';
 import { useApp } from '../context/AppContext';
 import { WiseToonVideo } from '../data/videos';
@@ -128,6 +130,7 @@ export const VideoTheaterScreen: React.FC<Props> = ({ navigation, route }) => {
   const onPlayerStateChange = useCallback((state: string) => {
     if (state === 'ended') {
       setIsPlaying(false);
+      showInterstitialIfAllowed().catch(() => {});
     }
   }, []);
 
@@ -200,6 +203,7 @@ export const VideoTheaterScreen: React.FC<Props> = ({ navigation, route }) => {
             onPressOut={() => Animated.spring(backScale, { toValue: 1, friction: 4, useNativeDriver: USE_NATIVE_DRIVER }).start()}
             onPress={() => {
               setIsPlaying(false);
+              showInterstitialIfAllowed().catch(() => {});
               navigation.goBack();
             }}
             accessibilityLabel="Back to Home"
@@ -263,6 +267,9 @@ export const VideoTheaterScreen: React.FC<Props> = ({ navigation, route }) => {
           )}
         />
       </View>
+
+      {/* Google AdMob Banner */}
+      <AdBanner />
 
       <TouchableOpacity
         style={styles.parents}

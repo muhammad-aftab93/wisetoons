@@ -17,6 +17,7 @@ import { useApp } from '../context/AppContext';
 import { VideoCard, ViewModeToggle } from '../components/VideoCard';
 import { WiseOwl } from '../components/WiseOwl';
 import { DreamyBackground } from '../components/DreamyBackground';
+import { AdBanner } from '../components/AdBanner';
 import { WiseToonVideo } from '../data/videos';
 import { RADIUS, SPACING, TYPOGRAPHY } from '../theme/theme';
 import { USE_NATIVE_DRIVER } from '../utils/animation';
@@ -26,7 +27,7 @@ type Props = NativeStackScreenProps<RootStackParamList, 'LocalFavorites'>;
 export const LocalFavoritesScreen: React.FC<Props> = ({ navigation }) => {
   const { colors, viewMode = 'grid', favoriteVideos = [] } = useApp();
   const { width } = useWindowDimensions();
-  const gridColumns = width >= 900 ? 4 : 3;
+  const gridColumns = width >= 1024 ? 4 : width >= 600 ? 3 : 2;
   const columns = viewMode === 'list' ? 1 : gridColumns;
   const gap = SPACING.md;
   const cardWidth =
@@ -102,6 +103,9 @@ export const LocalFavoritesScreen: React.FC<Props> = ({ navigation }) => {
           )}
         />
       )}
+
+      {/* Google AdMob Banner */}
+      <AdBanner />
     </SafeAreaView>
   );
 };

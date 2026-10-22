@@ -1,6 +1,6 @@
 // src/components/VideoCard.tsx
 import React, { useEffect, useRef } from 'react';
-import { View, Text, Image, TouchableOpacity, StyleSheet, Animated } from 'react-native';
+import { View, Text, Image, TouchableOpacity, StyleSheet, Animated, useWindowDimensions } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { RADIUS, SPACING, TYPOGRAPHY } from '../theme/theme';
 import { USE_NATIVE_DRIVER } from '../utils/animation';
@@ -17,6 +17,11 @@ interface Props {
 export const VideoCard: React.FC<Props> = React.memo(({ video, onPress, onPlay, variant = 'grid' }) => {
   const { colors, isFavorite, toggleFavorite } = useApp();
   const fav = isFavorite(video.videoId);
+  const { width: screenWidth } = useWindowDimensions();
+  const isNarrow = screenWidth < 360;
+  const isTablet = screenWidth >= 600;
+  const thumbWidth = isNarrow ? 124 : isTablet ? 160 : 140;
+  const thumbHeight = isNarrow ? 98 : isTablet ? 122 : 112;
 
   const handlePress = () => {
     if (onPlay) {
@@ -128,14 +133,14 @@ export const VideoCard: React.FC<Props> = React.memo(({ video, onPress, onPlay, 
           accessibilityLabel={`Play ${video.title}`}
           style={styles.listMain}
         >
-          <View style={[styles.listThumbWrap, { borderColor: colors.cardBorder }]}>
+          <View style={[styles.listThumbWrap, { width: thumbWidth, height: thumbHeight, borderColor: colors.cardBorder }]}>
             <Image
               source={{ uri: `https://img.youtube.com/vi/${video.videoId}/hqdefault.jpg` }}
               style={styles.thumb}
               resizeMode="cover"
             />
-            <Animated.View style={[styles.playBadge, { transform: [{ scale: playPulse }] }]}>
-              <Ionicons name="play" size={16} color="#fff" style={{ marginLeft: 2 }} />
+            <Animated.View style={[styles.listPlayBadge, { transform: [{ scale: playPulse }] }]}>
+              <Ionicons name="play" size={18} color="#fff" style={{ marginLeft: 2 }} />
             </Animated.View>
             {!!video.duration && (
               <View style={styles.duration}>
@@ -148,9 +153,16 @@ export const VideoCard: React.FC<Props> = React.memo(({ video, onPress, onPlay, 
             <Text style={[styles.listTitle, { color: colors.textPrimary }]} numberOfLines={2}>
               {video.title}
             </Text>
-            <Text style={[styles.listMeta, { color: colors.textSecondary }]} numberOfLines={1}>
-              {video.isShort ? 'Short · ' : ''}{timeAgo(video.publishedAt)}
-            </Text>
+            <View style={styles.listMetaRow}>
+              {video.isShort && (
+                <View style={[styles.shortTag, { backgroundColor: colors.primaryAccent }]}>
+                  <Text style={[styles.shortTagText, { color: colors.onAccent }]}>Short</Text>
+                </View>
+              )}
+              <Text style={[styles.listMeta, { color: colors.textSecondary }]} numberOfLines={1}>
+                {timeAgo(video.publishedAt)}
+              </Text>
+            </View>
             {!!snippet && (
               <Text style={[styles.listSnippet, { color: colors.textSecondary }]} numberOfLines={2}>
                 {snippet}
@@ -163,7 +175,7 @@ export const VideoCard: React.FC<Props> = React.memo(({ video, onPress, onPlay, 
           onPress={handleToggleFavorite}
           accessibilityRole="button"
           accessibilityLabel={fav ? 'Remove from starred' : 'Add to starred'}
-          hitSlop={{ top: 6, right: 6, bottom: 6, left: 6 }}
+          hitSlop={{ top: 8, right: 8, bottom: 8, left: 8 }}
           style={[
             styles.listStar,
             { backgroundColor: fav ? colors.starActive : colors.surfaceElevated },
@@ -172,7 +184,7 @@ export const VideoCard: React.FC<Props> = React.memo(({ video, onPress, onPlay, 
           <Animated.View style={{ transform: [{ scale: starScale }, { rotate: starSpin }] }}>
             <Ionicons
               name={fav ? 'star' : 'star-outline'}
-              size={20}
+              size={18}
               color={fav ? colors.onAccent : colors.textPrimary}
             />
           </Animated.View>
@@ -206,7 +218,7 @@ export const VideoCard: React.FC<Props> = React.memo(({ video, onPress, onPlay, 
             resizeMode="cover"
           />
           <Animated.View style={[styles.playBadge, { transform: [{ scale: playPulse }] }]}>
-            <Ionicons name="play" size={16} color="#fff" style={{ marginLeft: 2 }} />
+            <Ionicons name="play" size={19} color="#fff" style={{ marginLeft: 2 }} />
           </Animated.View>
           {!!video.duration && (
             <View style={styles.duration}>
@@ -221,11 +233,11 @@ export const VideoCard: React.FC<Props> = React.memo(({ video, onPress, onPlay, 
         onPress={handleToggleFavorite}
         accessibilityRole="button"
         accessibilityLabel={fav ? 'Remove from starred' : 'Add to starred'}
-        hitSlop={{ top: 6, right: 6, bottom: 6, left: 6 }}
+        hitSlop={{ top: 8, right: 8, bottom: 8, left: 8 }}
         style={[styles.star, { backgroundColor: fav ? colors.starActive : 'rgba(0,0,0,0.55)' }]}
       >
         <Animated.View style={{ transform: [{ scale: starScale }, { rotate: starSpin }] }}>
-          <Ionicons name={fav ? 'star' : 'star-outline'} size={16} color={fav ? colors.onAccent : '#fff'} />
+          <Ionicons name={fav ? 'star' : 'star-outline'} size={18} color={fav ? colors.onAccent : '#fff'} />
         </Animated.View>
       </TouchableOpacity>
 
@@ -259,7 +271,7 @@ export const ViewModeToggle: React.FC = () => {
       >
         <Ionicons
           name="grid"
-          size={16}
+          size={17}
           color={viewMode === 'grid' ? colors.onAccent : colors.textSecondary}
         />
         <Text
@@ -283,7 +295,7 @@ export const ViewModeToggle: React.FC = () => {
       >
         <Ionicons
           name="list"
-          size={18}
+          size={19}
           color={viewMode === 'list' ? colors.onAccent : colors.textSecondary}
         />
         <Text
@@ -316,13 +328,13 @@ export const VideoCardSkeleton: React.FC = () => {
     <Animated.View style={[styles.card, { opacity: pulse }]}>
       <View style={[styles.thumbWrap, { backgroundColor: colors.surfaceElevated, borderColor: colors.cardBorder }]} />
       <View style={[styles.skelLine, { backgroundColor: colors.surfaceElevated, width: '80%' }]} />
-      <View style={[styles.skelLine, { backgroundColor: colors.surfaceElevated, width: '40%', height: 12 }]} />
+      <View style={[styles.skelLine, { backgroundColor: colors.surfaceElevated, width: '40%', height: 14 }]} />
     </Animated.View>
   );
 };
 
 const styles = StyleSheet.create({
-  card: { marginBottom: SPACING.md },
+  card: { marginBottom: SPACING.md + 4 },
   thumbWrap: {
     width: '100%',
     aspectRatio: 16 / 9,
@@ -335,107 +347,139 @@ const styles = StyleSheet.create({
     position: 'absolute',
     alignSelf: 'center',
     top: '50%',
-    marginTop: -16,
-    width: 32,
-    height: 32,
-    borderRadius: 16,
-    backgroundColor: 'rgba(0,0,0,0.5)',
+    marginTop: -20,
+    width: 40,
+    height: 40,
+    borderRadius: 20,
+    backgroundColor: 'rgba(0,0,0,0.52)',
     justifyContent: 'center',
     alignItems: 'center',
   },
   duration: {
     position: 'absolute',
-    right: 6,
-    bottom: 6,
-    backgroundColor: 'rgba(0,0,0,0.8)',
-    borderRadius: 6,
-    paddingHorizontal: 6,
-    paddingVertical: 1,
+    right: 7,
+    bottom: 7,
+    backgroundColor: 'rgba(0,0,0,0.82)',
+    borderRadius: 8,
+    paddingHorizontal: 8,
+    paddingVertical: 2,
   },
-  durationText: { color: '#fff', fontFamily: TYPOGRAPHY.fontFamily.bold, fontSize: 10 },
+  durationText: { color: '#fff', fontFamily: TYPOGRAPHY.fontFamily.bold, fontSize: 11 },
   star: {
     position: 'absolute',
-    top: 6,
-    right: 6,
-    width: 28,
-    height: 28,
-    borderRadius: 14,
+    top: 7,
+    right: 7,
+    width: 34,
+    height: 34,
+    borderRadius: 17,
     justifyContent: 'center',
     alignItems: 'center',
   },
   title: {
     fontFamily: TYPOGRAPHY.fontFamily.bold,
-    fontSize: 12,
-    lineHeight: 16,
-    marginTop: 6,
+    fontSize: 14.5,
+    lineHeight: 19,
+    marginTop: 8,
     paddingHorizontal: 2,
   },
   category: {
     fontFamily: TYPOGRAPHY.fontFamily.regular,
-    fontSize: 10,
-    lineHeight: 13,
-    marginTop: 2,
+    fontSize: 12,
+    lineHeight: 15,
+    marginTop: 3,
     paddingHorizontal: 2,
   },
-  skelLine: { height: 12, borderRadius: 6, marginTop: 6, marginHorizontal: 2 },
+  skelLine: { height: 14, borderRadius: 7, marginTop: 8, marginHorizontal: 2 },
   // Detail List Row styles
   listCard: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    borderRadius: RADIUS.md,
-    borderWidth: 2,
-    padding: SPACING.xs,
-    marginBottom: SPACING.sm,
-    gap: SPACING.sm,
+    borderRadius: RADIUS.lg,
+    borderWidth: 2.5,
+    padding: SPACING.sm,
+    marginBottom: SPACING.md,
+    position: 'relative',
   },
   listMain: {
-    flex: 1,
     flexDirection: 'row',
     alignItems: 'center',
     gap: SPACING.sm,
   },
   listThumbWrap: {
-    width: 148,
-    aspectRatio: 16 / 9,
-    borderRadius: RADIUS.sm,
+    borderRadius: RADIUS.md,
     overflow: 'hidden',
     borderWidth: 2,
     backgroundColor: '#000',
+  },
+  listPlayBadge: {
+    position: 'absolute',
+    alignSelf: 'center',
+    top: '50%',
+    marginTop: -17,
+    width: 34,
+    height: 34,
+    borderRadius: 17,
+    backgroundColor: 'rgba(0,0,0,0.55)',
+    justifyContent: 'center',
+    alignItems: 'center',
   },
   listInfo: {
     flex: 1,
     justifyContent: 'center',
     gap: 2,
+    paddingRight: 36,
   },
   listTitle: {
     fontFamily: TYPOGRAPHY.fontFamily.bold,
     fontSize: 14,
     lineHeight: 18,
   },
+  listMetaRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 6,
+    marginTop: 1,
+  },
+  shortTag: {
+    paddingHorizontal: 6,
+    paddingVertical: 1,
+    borderRadius: RADIUS.pill,
+  },
+  shortTagText: {
+    fontFamily: TYPOGRAPHY.fontFamily.bold,
+    fontSize: 10,
+  },
   listMeta: {
     fontFamily: TYPOGRAPHY.fontFamily.regular,
-    fontSize: 11,
+    fontSize: 11.5,
+    lineHeight: 15,
   },
   listSnippet: {
     fontFamily: TYPOGRAPHY.fontFamily.regular,
-    fontSize: 11,
+    fontSize: 11.5,
     lineHeight: 15,
     marginTop: 2,
-    opacity: 0.85,
+    opacity: 0.9,
   },
   listStar: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
+    position: 'absolute',
+    top: 10,
+    right: 10,
+    width: 36,
+    height: 36,
+    borderRadius: 18,
     justifyContent: 'center',
     alignItems: 'center',
+    elevation: 2,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.12,
+    shadowRadius: 2,
   },
   // Segmented Cards / List toggle
   viewToggle: {
     flexDirection: 'row',
     borderRadius: RADIUS.pill,
     borderWidth: 2,
-    padding: 3,
+    padding: 2,
     gap: 2,
   },
   viewToggleBtn: {
@@ -443,7 +487,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     gap: 4,
     paddingHorizontal: 10,
-    paddingVertical: 6,
+    paddingVertical: 5,
     borderRadius: RADIUS.pill,
   },
   viewToggleText: {

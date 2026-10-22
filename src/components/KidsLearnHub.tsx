@@ -15,6 +15,8 @@ import { useApp } from '../context/useAppContext';
 import { WiseOwl } from './WiseOwl';
 import { RADIUS, SPACING, TYPOGRAPHY } from '../theme/theme';
 import { USE_NATIVE_DRIVER } from '../utils/animation';
+import { speakFriendly, stopSpeaking } from '../utils/speechService';
+import { playFlipSound, playVictorySound, playAnimalSound, stopAnimalSound } from '../utils/soundEffects';
 
 type LearnModule = 'menu' | 'abc' | 'numbers' | 'shapes' | 'animals';
 
@@ -26,53 +28,66 @@ interface AlphabetItem {
   word: string;
   emoji: string;
   phonic: string;
+  spoken: string;
   color: string;
 }
 
 const ALPHABET_DATA: AlphabetItem[] = [
-  { letter: 'A', word: 'Apple', emoji: '🍎', phonic: 'Ah-Ah-Apple!', color: '#FF6B6B' },
-  { letter: 'B', word: 'Butterfly', emoji: '🦋', phonic: 'Buh-Buh-Butterfly!', color: '#4D96FF' },
-  { letter: 'C', word: 'Cat', emoji: '🐱', phonic: 'Kuh-Kuh-Cat!', color: '#FFD93D' },
-  { letter: 'D', word: 'Dolphin', emoji: '🐬', phonic: 'Duh-Duh-Dolphin!', color: '#6BCB77' },
-  { letter: 'E', word: 'Elephant', emoji: '🐘', phonic: 'Eh-Eh-Elephant!', color: '#B983FF' },
-  { letter: 'F', word: 'Fox', emoji: '🦊', phonic: 'Fff-Fff-Fox!', color: '#FF9F45' },
-  { letter: 'G', word: 'Giraffe', emoji: '🦒', phonic: 'Juh-Juh-Giraffe!', color: '#F4D160' },
-  { letter: 'H', word: 'Heart', emoji: '💖', phonic: 'Huh-Huh-Heart!', color: '#FF758F' },
-  { letter: 'I', word: 'Ice Cream', emoji: '🍦', phonic: 'Eye-Ice Cream!', color: '#FFB830' },
-  { letter: 'J', word: 'Jellyfish', emoji: '🪼', phonic: 'Juh-Juh-Jellyfish!', color: '#68B984' },
-  { letter: 'K', word: 'Kite', emoji: '🪁', phonic: 'Kuh-Kuh-Kite!', color: '#FF6363' },
-  { letter: 'L', word: 'Lion', emoji: '🦁', phonic: 'Lll-Lll-Lion!', color: '#FFA41B' },
-  { letter: 'M', word: 'Moon', emoji: '🌙', phonic: 'Mmm-Mmm-Moon!', color: '#845EC2' },
-  { letter: 'N', word: 'Nest', emoji: '🪹', phonic: 'Nnn-Nnn-Nest!', color: '#D5C4A1' },
-  { letter: 'O', word: 'Owl', emoji: '🦉', phonic: 'Ah-Ah-Owl!', color: '#4B7BEC' },
-  { letter: 'P', word: 'Panda', emoji: '🐼', phonic: 'Puh-Puh-Panda!', color: '#2C3A47' },
-  { letter: 'Q', word: 'Queen', emoji: '👑', phonic: 'Kw-Kw-Queen!', color: '#F7B731' },
-  { letter: 'R', word: 'Rainbow', emoji: '🌈', phonic: 'Rrr-Rrr-Rainbow!', color: '#FC5C65' },
-  { letter: 'S', word: 'Star', emoji: '⭐', phonic: 'Sss-Sss-Star!', color: '#FED330' },
-  { letter: 'T', word: 'Turtle', emoji: '🐢', phonic: 'Tuh-Tuh-Turtle!', color: '#26DE81' },
-  { letter: 'U', word: 'Umbrella', emoji: '☂️', phonic: 'Uh-Uh-Umbrella!', color: '#A55EEA' },
-  { letter: 'V', word: 'Violin', emoji: '🎻', phonic: 'Vvv-Vvv-Violin!', color: '#EB3B5A' },
-  { letter: 'W', word: 'Whale', emoji: '🐳', phonic: 'Wuh-Wuh-Whale!', color: '#45AAF2' },
-  { letter: 'X', word: 'Xylophone', emoji: '🎶', phonic: 'X-X-Xylophone!', color: '#FA8231' },
-  { letter: 'Y', word: 'Yo-Yo', emoji: '🪀', phonic: 'Yuh-Yuh-Yo-Yo!', color: '#20BF6B' },
-  { letter: 'Z', word: 'Zebra', emoji: '🦓', phonic: 'Zzz-Zzz-Zebra!', color: '#778CA3' },
+  { letter: 'A', word: 'Apple', emoji: '🍎', phonic: 'Ah-Ah-Apple!', spoken: 'A. Ah, ah, Apple!', color: '#FF6B6B' },
+  { letter: 'B', word: 'Butterfly', emoji: '🦋', phonic: 'Buh-Buh-Butterfly!', spoken: 'B. Buh, buh, Butterfly!', color: '#4D96FF' },
+  { letter: 'C', word: 'Cat', emoji: '🐱', phonic: 'Kuh-Kuh-Cat!', spoken: 'C. Kuh, kuh, Cat!', color: '#FFD93D' },
+  { letter: 'D', word: 'Dolphin', emoji: '🐬', phonic: 'Duh-Duh-Dolphin!', spoken: 'D. Duh, duh, Dolphin!', color: '#6BCB77' },
+  { letter: 'E', word: 'Elephant', emoji: '🐘', phonic: 'Eh-Eh-Elephant!', spoken: 'E. Eh, eh, Elephant!', color: '#B983FF' },
+  { letter: 'F', word: 'Fox', emoji: '🦊', phonic: 'Fff-Fff-Fox!', spoken: 'F. Fff, fff, Fox!', color: '#FF9F45' },
+  { letter: 'G', word: 'Giraffe', emoji: '🦒', phonic: 'Juh-Juh-Giraffe!', spoken: 'G. Juh, juh, Giraffe!', color: '#F4D160' },
+  { letter: 'H', word: 'Heart', emoji: '💖', phonic: 'Huh-Huh-Heart!', spoken: 'H. Huh, huh, Heart!', color: '#FF758F' },
+  { letter: 'I', word: 'Ice Cream', emoji: '🍦', phonic: 'Eye-Ice Cream!', spoken: 'I. Eye, ice cream!', color: '#FFB830' },
+  { letter: 'J', word: 'Jellyfish', emoji: '🪼', phonic: 'Juh-Juh-Jellyfish!', spoken: 'J. Juh, juh, Jellyfish!', color: '#68B984' },
+  { letter: 'K', word: 'Kite', emoji: '🪁', phonic: 'Kuh-Kuh-Kite!', spoken: 'K. Kuh, kuh, Kite!', color: '#FF6363' },
+  { letter: 'L', word: 'Lion', emoji: '🦁', phonic: 'Lll-Lll-Lion!', spoken: 'L. Lll, lll, Lion!', color: '#FFA41B' },
+  { letter: 'M', word: 'Moon', emoji: '🌙', phonic: 'Mmm-Mmm-Moon!', spoken: 'M. Mmm, mmm, Moon!', color: '#845EC2' },
+  { letter: 'N', word: 'Nest', emoji: '🪹', phonic: 'Nnn-Nnn-Nest!', spoken: 'N. Nnn, nnn, Nest!', color: '#D5C4A1' },
+  { letter: 'O', word: 'Owl', emoji: '🦉', phonic: 'Ah-Ah-Owl!', spoken: 'O. Ow, ow, Owl!', color: '#4B7BEC' },
+  { letter: 'P', word: 'Panda', emoji: '🐼', phonic: 'Puh-Puh-Panda!', spoken: 'P. Puh, puh, Panda!', color: '#2C3A47' },
+  { letter: 'Q', word: 'Queen', emoji: '👑', phonic: 'Kw-Kw-Queen!', spoken: 'Q. Kwuh, kwuh, Queen!', color: '#F7B731' },
+  { letter: 'R', word: 'Rainbow', emoji: '🌈', phonic: 'Rrr-Rrr-Rainbow!', spoken: 'R. Rrr, rrr, Rainbow!', color: '#FC5C65' },
+  { letter: 'S', word: 'Star', emoji: '⭐', phonic: 'Sss-Sss-Star!', spoken: 'S. Sss, sss, Star!', color: '#FED330' },
+  { letter: 'T', word: 'Turtle', emoji: '🐢', phonic: 'Tuh-Tuh-Turtle!', spoken: 'T. Tuh, tuh, Turtle!', color: '#26DE81' },
+  { letter: 'U', word: 'Umbrella', emoji: '☂️', phonic: 'Uh-Uh-Umbrella!', spoken: 'U. Uh, uh, Umbrella!', color: '#A55EEA' },
+  { letter: 'V', word: 'Violin', emoji: '🎻', phonic: 'Vvv-Vvv-Violin!', spoken: 'V. Vvv, vvv, Violin!', color: '#EB3B5A' },
+  { letter: 'W', word: 'Whale', emoji: '🐳', phonic: 'Wuh-Wuh-Whale!', spoken: 'W. Wuh, wuh, Whale!', color: '#45AAF2' },
+  { letter: 'X', word: 'Xylophone', emoji: '🎶', phonic: 'X-X-Xylophone!', spoken: 'X. Xylophone!', color: '#FA8231' },
+  { letter: 'Y', word: 'Yo-Yo', emoji: '🪀', phonic: 'Yuh-Yuh-Yo-Yo!', spoken: 'Y. Yuh, yuh, Yo-Yo!', color: '#20BF6B' },
+  { letter: 'Z', word: 'Zebra', emoji: '🦓', phonic: 'Zzz-Zzz-Zebra!', spoken: 'Z. Zzz, zzz, Zebra!', color: '#778CA3' },
 ];
 
 const AbcPhonicsModule: React.FC<{ onBack: () => void }> = ({ onBack }) => {
   const { colors } = useApp();
   const [selectedIndex, setSelectedIndex] = useState(0);
+  const [isSpeaking, setIsSpeaking] = useState(false);
   const cardScale = useRef(new Animated.Value(1)).current;
+  const speakerPulse = useRef(new Animated.Value(1)).current;
   const current = ALPHABET_DATA[selectedIndex];
+
+  const playPronunciation = useCallback((item: AlphabetItem) => {
+    playFlipSound();
+    setIsSpeaking(true);
+    speakFriendly(item.spoken, {
+      onStart: () => setIsSpeaking(true),
+      onDone: () => setIsSpeaking(false),
+    });
+  }, []);
 
   const handleSelect = (index: number) => {
     setSelectedIndex(index);
-    cardScale.setValue(0.7);
+    cardScale.setValue(0.78);
     Animated.spring(cardScale, {
       toValue: 1,
       friction: 4,
       tension: 140,
       useNativeDriver: USE_NATIVE_DRIVER,
     }).start();
+    playPronunciation(ALPHABET_DATA[index]);
   };
 
   const handleNext = () => {
@@ -82,6 +97,28 @@ const AbcPhonicsModule: React.FC<{ onBack: () => void }> = ({ onBack }) => {
   const handlePrev = () => {
     handleSelect((selectedIndex - 1 + ALPHABET_DATA.length) % ALPHABET_DATA.length);
   };
+
+  useEffect(() => {
+    playPronunciation(ALPHABET_DATA[0]);
+    return () => {
+      stopSpeaking();
+    };
+  }, [playPronunciation]);
+
+  useEffect(() => {
+    if (isSpeaking) {
+      const loop = Animated.loop(
+        Animated.sequence([
+          Animated.timing(speakerPulse, { toValue: 1.25, duration: 300, useNativeDriver: USE_NATIVE_DRIVER }),
+          Animated.timing(speakerPulse, { toValue: 1, duration: 300, useNativeDriver: USE_NATIVE_DRIVER }),
+        ])
+      );
+      loop.start();
+      return () => loop.stop();
+    } else {
+      speakerPulse.setValue(1);
+    }
+  }, [isSpeaking, speakerPulse]);
 
   return (
     <View style={styles.moduleWrap}>
@@ -95,15 +132,33 @@ const AbcPhonicsModule: React.FC<{ onBack: () => void }> = ({ onBack }) => {
 
       {/* Hero Letter Card */}
       <Animated.View style={[styles.heroLetterCard, { backgroundColor: current.color + '22', borderColor: current.color, transform: [{ scale: cardScale }] }]}>
-        <View style={styles.heroLetterTop}>
-          <Text style={[styles.heroBigLetter, { color: current.color }]}>{current.letter} {current.letter.toLowerCase()}</Text>
-          <Text style={styles.heroEmoji}>{current.emoji}</Text>
-        </View>
-        <Text style={[styles.heroWord, { color: colors.textPrimary }]}>{current.word}</Text>
-        <View style={[styles.phonicBadge, { backgroundColor: current.color }]}>
-          <Ionicons name="volume-high" size={18} color="#FFFFFF" />
+        <TouchableOpacity
+          activeOpacity={0.88}
+          onPress={() => playPronunciation(current)}
+          accessibilityRole="button"
+          accessibilityLabel={`Pronounce ${current.letter}, ${current.phonic}`}
+          style={{ alignItems: 'center', width: '100%' }}
+        >
+          <View style={styles.heroLetterTop}>
+            <Text style={[styles.heroBigLetter, { color: current.color }]}>{current.letter} {current.letter.toLowerCase()}</Text>
+            <Text style={styles.heroEmoji}>{current.emoji}</Text>
+          </View>
+          <Text style={[styles.heroWord, { color: colors.textPrimary }]}>{current.word}</Text>
+        </TouchableOpacity>
+
+        <TouchableOpacity
+          activeOpacity={0.85}
+          onPress={() => playPronunciation(current)}
+          accessibilityRole="button"
+          accessibilityLabel={`Listen to ${current.letter}, ${current.phonic}`}
+          style={[styles.phonicBadge, { backgroundColor: current.color }]}
+        >
+          <Animated.View style={{ transform: [{ scale: speakerPulse }] }}>
+            <Ionicons name={isSpeaking ? "volume-high" : "volume-medium"} size={20} color="#FFFFFF" />
+          </Animated.View>
           <Text style={styles.phonicText}>{current.phonic}</Text>
-        </View>
+          <Text style={styles.phonicHint}>Tap to hear 🔊</Text>
+        </TouchableOpacity>
 
         {/* Previous / Next Controls */}
         <View style={styles.heroNavRow}>
@@ -119,7 +174,7 @@ const AbcPhonicsModule: React.FC<{ onBack: () => void }> = ({ onBack }) => {
       </Animated.View>
 
       {/* 26 Letter Tiles Grid */}
-      <Text style={[styles.subhead, { color: colors.textSecondary }]}>Tap any letter to explore:</Text>
+      <Text style={[styles.subhead, { color: colors.textSecondary }]}>Tap any letter to hear its sound:</Text>
       <View style={styles.alphabetGrid}>
         {ALPHABET_DATA.map((item, idx) => {
           const isSelected = idx === selectedIndex;
@@ -128,6 +183,8 @@ const AbcPhonicsModule: React.FC<{ onBack: () => void }> = ({ onBack }) => {
               key={item.letter}
               onPress={() => handleSelect(idx)}
               activeOpacity={0.8}
+              accessibilityRole="button"
+              accessibilityLabel={`Letter ${item.letter}, ${item.word}`}
               style={[
                 styles.alphabetTile,
                 {
@@ -166,13 +223,22 @@ const NumbersCountingModule: React.FC<{ onBack: () => void }> = ({ onBack }) => 
     setTargetNumber(num);
     setTappedIndices([]);
     celebrateScale.setValue(0);
+    playFlipSound();
+    speakFriendly(`${num}! Let's count to ${num}!`);
   };
 
   const handleTapItem = (index: number) => {
     if (tappedIndices.includes(index)) return;
     const next = [...tappedIndices, index];
+    const tapOrder = next.length;
     setTappedIndices(next);
+    playFlipSound();
+    speakFriendly(`${tapOrder}`);
     if (next.length === targetNumber) {
+      setTimeout(() => {
+        playVictorySound();
+        speakFriendly(`Hooray! You counted all ${targetNumber}! Great job!`);
+      }, 400);
       Animated.spring(celebrateScale, {
         toValue: 1,
         friction: 4,
@@ -300,6 +366,18 @@ const ShapesColorsModule: React.FC<{ onBack: () => void }> = ({ onBack }) => {
   const { colors } = useApp();
   const [selectedShape, setSelectedShape] = useState<ShapeItem>(SHAPES_DATA[0]);
 
+  const handleSelectShape = (shape: ShapeItem) => {
+    setSelectedShape(shape);
+    playFlipSound();
+    speakFriendly(`${shape.name}! A ${shape.colorName} ${shape.name}!`);
+  };
+
+  useEffect(() => {
+    return () => {
+      stopSpeaking();
+    };
+  }, []);
+
   return (
     <View style={styles.moduleWrap}>
       <View style={styles.moduleHeader}>
@@ -311,7 +389,11 @@ const ShapesColorsModule: React.FC<{ onBack: () => void }> = ({ onBack }) => {
       </View>
 
       {/* Selected Shape Hero */}
-      <View style={[styles.shapeHeroCard, { backgroundColor: selectedShape.colorCode + '22', borderColor: selectedShape.colorCode }]}>
+      <TouchableOpacity
+        activeOpacity={0.88}
+        onPress={() => handleSelectShape(selectedShape)}
+        style={[styles.shapeHeroCard, { backgroundColor: selectedShape.colorCode + '22', borderColor: selectedShape.colorCode }]}
+      >
         <Text style={styles.shapeHeroEmoji}>{selectedShape.emoji}</Text>
         <Text style={[styles.shapeHeroName, { color: colors.textPrimary }]}>{selectedShape.name}</Text>
         <View style={styles.shapeBadgeRow}>
@@ -323,7 +405,7 @@ const ShapesColorsModule: React.FC<{ onBack: () => void }> = ({ onBack }) => {
           </View>
         </View>
         <Text style={[styles.shapeHeroFact, { color: colors.textSecondary }]}>{selectedShape.fact}</Text>
-      </View>
+      </TouchableOpacity>
 
       {/* Shapes Grid */}
       <Text style={[styles.subhead, { color: colors.textSecondary }]}>Pick a shape to learn:</Text>
@@ -333,7 +415,7 @@ const ShapesColorsModule: React.FC<{ onBack: () => void }> = ({ onBack }) => {
           return (
             <TouchableOpacity
               key={shape.name}
-              onPress={() => setSelectedShape(shape)}
+              onPress={() => handleSelectShape(shape)}
               style={[
                 styles.shapeTile,
                 {
@@ -356,6 +438,7 @@ const ShapesColorsModule: React.FC<{ onBack: () => void }> = ({ onBack }) => {
 // 4. Animal Safari & Sounds
 // -------------------------------------------------------------
 interface AnimalItem {
+  id: string;
   name: string;
   emoji: string;
   sound: string;
@@ -365,14 +448,14 @@ interface AnimalItem {
 }
 
 const ANIMALS_DATA: AnimalItem[] = [
-  { name: 'Wise Owl', emoji: '🦉', sound: '“Hoo! Hoo!”', habitat: 'Oak Forest 🌳', tint: '#B8E8FC', fact: 'Wise and gentle, loves reading and stargazing!' },
-  { name: 'Leo the Lion', emoji: '🦁', sound: '“Roaaar!”', habitat: 'Sunny Savannah 🌾', tint: '#FFE082', fact: 'Has a magnificent golden mane and loves napping.' },
-  { name: 'Ellie the Elephant', emoji: '🐘', sound: '“Pawoooo!”', habitat: 'Green Jungle 🌴', tint: '#E0C8FF', fact: 'Uses her long trunk to drink cool water and splash friends!' },
-  { name: 'Barnaby Bear', emoji: '🐻', sound: '“Grrr-Hummm!”', habitat: 'Pine Forest 🌲', tint: '#FFD8BE', fact: 'Loves fresh berries and warm golden honey.' },
-  { name: 'Pippa the Puppy', emoji: '🐶', sound: '“Woof! Woof!”', habitat: 'Cozy Home 🏡', tint: '#FFD1DC', fact: 'Wags her tail happily and loves playing catch in the yard.' },
-  { name: 'Clover the Cow', emoji: '🐮', sound: '“Moooo!”', habitat: 'Flower Meadow 🌻', tint: '#C8F7DC', fact: 'Chews sweet green grass and enjoys peaceful sunny days.' },
-  { name: 'Freddie the Frog', emoji: '🐸', sound: '“Ribbit! Ribbit!”', habitat: 'Waterlily Pond 🪷', tint: '#A8E6CF', fact: 'Champion leaper who catches flying fireflies at dusk!' },
-  { name: 'Danny the Dolphin', emoji: '🐬', sound: '“Click! Whistle!”', habitat: 'Deep Blue Sea 🌊', tint: '#B2EBF2', fact: 'Splashes playful backflips through shimmering ocean waves.' },
+  { id: 'owl', name: 'Wise Owl', emoji: '🦉', sound: '“Hoo! Hoo!”', habitat: 'Oak Forest 🌳', tint: '#B8E8FC', fact: 'Wise and gentle, loves reading and stargazing!' },
+  { id: 'lion', name: 'Leo the Lion', emoji: '🦁', sound: '“Roaaar!”', habitat: 'Sunny Savannah 🌾', tint: '#FFE082', fact: 'Has a magnificent golden mane and loves napping.' },
+  { id: 'elephant', name: 'Ellie the Elephant', emoji: '🐘', sound: '“Pawoooo!”', habitat: 'Green Jungle 🌴', tint: '#E0C8FF', fact: 'Uses her long trunk to drink cool water and splash friends!' },
+  { id: 'bear', name: 'Barnaby Bear', emoji: '🐻', sound: '“Grrr-Hummm!”', habitat: 'Pine Forest 🌲', tint: '#FFD8BE', fact: 'Loves fresh berries and warm golden honey.' },
+  { id: 'dog', name: 'Pippa the Puppy', emoji: '🐶', sound: '“Woof! Woof!”', habitat: 'Cozy Home 🏡', tint: '#FFD1DC', fact: 'Wags her tail happily and loves playing catch in the yard.' },
+  { id: 'cow', name: 'Clover the Cow', emoji: '🐮', sound: '“Moooo!”', habitat: 'Flower Meadow 🌻', tint: '#C8F7DC', fact: 'Chews sweet green grass and enjoys peaceful sunny days.' },
+  { id: 'frog', name: 'Freddie the Frog', emoji: '🐸', sound: '“Ribbit! Ribbit!”', habitat: 'Waterlily Pond 🪷', tint: '#A8E6CF', fact: 'Champion leaper who catches flying fireflies at dusk!' },
+  { id: 'dolphin', name: 'Danny the Dolphin', emoji: '🐬', sound: '“Click! Whistle!”', habitat: 'Deep Blue Sea 🌊', tint: '#B2EBF2', fact: 'Splashes playful backflips through shimmering ocean waves.' },
 ];
 
 const AnimalsSafariModule: React.FC<{ onBack: () => void }> = ({ onBack }) => {
@@ -382,6 +465,9 @@ const AnimalsSafariModule: React.FC<{ onBack: () => void }> = ({ onBack }) => {
 
   const handleSelectAnimal = (animal: AnimalItem) => {
     setActiveAnimal(animal);
+    stopSpeaking();
+    playAnimalSound(animal.id);
+
     soundPop.setValue(0.7);
     Animated.spring(soundPop, {
       toValue: 1,
@@ -390,6 +476,13 @@ const AnimalsSafariModule: React.FC<{ onBack: () => void }> = ({ onBack }) => {
       useNativeDriver: USE_NATIVE_DRIVER,
     }).start();
   };
+
+  useEffect(() => {
+    return () => {
+      stopSpeaking();
+      stopAnimalSound();
+    };
+  }, []);
 
   return (
     <View style={styles.moduleWrap}>
@@ -405,10 +498,17 @@ const AnimalsSafariModule: React.FC<{ onBack: () => void }> = ({ onBack }) => {
       <View style={[styles.animalHeroCard, { backgroundColor: activeAnimal.tint, borderColor: '#1D3557' }]}>
         <Text style={styles.animalHeroEmoji}>{activeAnimal.emoji}</Text>
         <Text style={styles.animalHeroName}>{activeAnimal.name}</Text>
-        <Animated.View style={[styles.animalSoundBubble, { transform: [{ scale: soundPop }] }]}>
-          <Ionicons name="megaphone" size={18} color="#1D3557" />
-          <Text style={styles.animalSoundText}>{activeAnimal.sound}</Text>
-        </Animated.View>
+        <TouchableOpacity
+          activeOpacity={0.8}
+          onPress={() => handleSelectAnimal(activeAnimal)}
+          accessibilityRole="button"
+          accessibilityLabel={`Hear real ${activeAnimal.name} sound`}
+        >
+          <Animated.View style={[styles.animalSoundBubble, { transform: [{ scale: soundPop }] }]}>
+            <Ionicons name="volume-high" size={20} color="#1D3557" />
+            <Text style={styles.animalSoundText}>{activeAnimal.sound}</Text>
+          </Animated.View>
+        </TouchableOpacity>
         <View style={styles.animalHabitatPill}>
           <Text style={styles.animalHabitatText}>Habitat: {activeAnimal.habitat}</Text>
         </View>
@@ -416,7 +516,7 @@ const AnimalsSafariModule: React.FC<{ onBack: () => void }> = ({ onBack }) => {
       </View>
 
       {/* Animals Grid */}
-      <Text style={[styles.subhead, { color: colors.textSecondary }]}>Tap an animal friend to hear their sound:</Text>
+      <Text style={[styles.subhead, { color: colors.textSecondary }]}>Tap an animal friend to hear their real sound:</Text>
       <View style={styles.animalsGrid}>
         {ANIMALS_DATA.map((animal) => {
           const isSelected = animal.name === activeAnimal.name;
@@ -432,6 +532,8 @@ const AnimalsSafariModule: React.FC<{ onBack: () => void }> = ({ onBack }) => {
                   transform: [{ scale: isSelected ? 1.05 : 1 }],
                 },
               ]}
+              accessibilityRole="button"
+              accessibilityLabel={`Select ${animal.name}`}
             >
               <Text style={styles.animalTileEmoji}>{animal.emoji}</Text>
               <Text style={styles.animalTileName} numberOfLines={1}>{animal.name.split(' ')[0]}</Text>
@@ -718,16 +820,27 @@ const styles = StyleSheet.create({
   phonicBadge: {
     flexDirection: 'row',
     alignItems: 'center',
-    gap: 6,
-    paddingHorizontal: 14,
-    paddingVertical: 6,
+    gap: 8,
+    paddingHorizontal: 16,
+    paddingVertical: 9,
     borderRadius: RADIUS.pill,
-    marginTop: 8,
+    marginTop: 10,
+    shadowColor: '#000',
+    shadowOpacity: 0.12,
+    shadowRadius: 4,
+    shadowOffset: { width: 0, height: 2 },
+    elevation: 3,
   },
   phonicText: {
     fontFamily: TYPOGRAPHY.fontFamily.bold,
-    fontSize: 14,
+    fontSize: 15,
     color: '#FFFFFF',
+  },
+  phonicHint: {
+    fontFamily: TYPOGRAPHY.fontFamily.regular,
+    fontSize: 12,
+    color: 'rgba(255, 255, 255, 0.92)',
+    marginLeft: 4,
   },
   heroNavRow: {
     flexDirection: 'row',

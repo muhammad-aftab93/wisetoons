@@ -38,6 +38,14 @@
           "resizeMode": "contain",
           "backgroundColor": "#EAF2FF"
         }
+      ],
+      [
+        "react-native-google-mobile-ads",
+        {
+          "androidAppId": "ca-app-pub-3940256099942544~3347511713",
+          "iosAppId": "ca-app-pub-3940256099942544~1458002511",
+          "userTrackingUsageDescription": "This app uses family-safe advertising to keep learning fun and free for kids."
+        }
       ]
     ],
     "extra": {
