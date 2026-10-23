@@ -1,6 +1,6 @@
 {
   "name": "wisetoons",
-  "version": "1.0.0",
+  "version": "1.0.1",
   "main": "index.ts",
   "dependencies": {
     "@expo-google-fonts/fredoka": "^0.4.1",
@@ -37,8 +37,8 @@
   },
   "private": true,
   "react-native-google-mobile-ads": {
-    "android_app_id": "ca-app-pub-1406120122085775~4716217505",
-    "ios_app_id": "ca-app-pub-3940256099942544~1458002511",
+    "android_app_id": "ca-app-pub-1724311042546242~2819526958",
+    "ios_app_id": "ca-app-pub-1724311042546242~2819526958",
     "user_tracking_usage_description": "This app uses family-safe advertising to keep learning fun and free for kids."
   }
 }

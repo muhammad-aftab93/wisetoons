@@ -2,7 +2,7 @@
   "expo": {
     "name": "WiseToons for Kids",
     "slug": "wisetoons",
-    "version": "1.0.0",
+    "version": "1.0.1",
     "orientation": "portrait",
     "icon": "./assets/icon.png",
     "userInterfaceStyle": "light",
@@ -14,6 +14,7 @@
     },
     "android": {
       "package": "com.wisetoons.kids",
+      "versionCode": 2,
       "backgroundColor": "#EAF2FF",
       "adaptiveIcon": {
         "backgroundColor": "#1B1931",
@@ -42,8 +43,8 @@
       [
         "react-native-google-mobile-ads",
         {
-          "androidAppId": "ca-app-pub-1406120122085775~4716217505",
-          "iosAppId": "ca-app-pub-3940256099942544~1458002511",
+          "androidAppId": "ca-app-pub-1724311042546242~2819526958",
+          "iosAppId": "ca-app-pub-1724311042546242~2819526958",
           "userTrackingUsageDescription": "This app uses family-safe advertising to keep learning fun and free for kids."
         }
       ]
@@ -54,5 +55,10 @@
       }
     },
     "owner": "devexpo93s-team"
+  },
+  "react-native-google-mobile-ads": {
+    "android_app_id": "ca-app-pub-1724311042546242~2819526958",
+    "ios_app_id": "ca-app-pub-1724311042546242~2819526958",
+    "user_tracking_usage_description": "This app uses family-safe advertising to keep learning fun and free for kids."
   }
 }

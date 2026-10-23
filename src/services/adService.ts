@@ -3,6 +3,7 @@
 // Complete beginner safeguards: Auto-test mode in dev, test device whitelisting,
 // and 24-48h account review grace fallbacks.
 import { Platform, NativeModules, TurboModuleRegistry } from 'react-native';
+import { useState, useEffect } from 'react';
 
 export interface AdUnitIds {
   banner: string;
@@ -25,19 +26,19 @@ export const FORCE_TEST_ADS: boolean = __DEV__;
 // Live AdMob IDs created in your Google AdMob Console
 export const LIVE_AD_UNIT_IDS: AdUnitIds = {
   banner: Platform.select({
-    android: 'ca-app-pub-1406120122085775/2905935675',
-    ios: 'ca-app-pub-3940256099942544/2934735716', // Test fallback until iOS unit is configured
-    default: 'ca-app-pub-1406120122085775/2905935675',
+    android: 'ca-app-pub-1724311042546242/2255500304',
+    ios: 'ca-app-pub-3940256099942544/2934735716', // Test fallback until iOS unit is configured (AdMob App ID ca-app-pub-1724311042546242~2819526958 cannot be used directly as an ad unit)
+    default: 'ca-app-pub-1724311042546242/2255500304',
   }) as string,
   interstitial: Platform.select({
-    android: 'ca-app-pub-1406120122085775/2629110219',
+    android: 'ca-app-pub-1724311042546242/8945951602',
     ios: 'ca-app-pub-3940256099942544/4411468910',
-    default: 'ca-app-pub-1406120122085775/2629110219',
+    default: 'ca-app-pub-1724311042546242/8945951602',
   }) as string,
   rewarded: Platform.select({
-    android: 'ca-app-pub-1406120122085775/4022082931',
+    android: 'ca-app-pub-1724311042546242/1506445283',
     ios: 'ca-app-pub-3940256099942544/1712485313',
-    default: 'ca-app-pub-1406120122085775/4022082931',
+    default: 'ca-app-pub-1724311042546242/1506445283',
   }) as string,
 };
 
@@ -108,19 +109,27 @@ function getGoogleMobileAds() {
 
 let isInitialized = false;
 let initPromise: Promise<void> | null = null;
+const initListeners = new Set<(ready: boolean) => void>();
 
-// Interstitial Ad Management
-let interstitialAd: any = null;
-let isInterstitialLoaded = false;
-let isInterstitialLoading = false;
-let lastInterstitialShowTime = 0;
-// Google Families policy & kids UX: Rate-limit interstitials to avoid frustrating children.
-const INTERSTITIAL_COOLDOWN_MS = 2.5 * 60 * 1000; // 2.5 minutes
+export function isAdMobReady(): boolean {
+  return isInitialized;
+}
 
-// Rewarded Ad Management
-let rewardedAd: any = null;
-let isRewardedLoaded = false;
-let isRewardedLoading = false;
+export function subscribeAdMobReady(listener: (ready: boolean) => void): () => void {
+  initListeners.add(listener);
+  listener(isInitialized);
+  return () => {
+    initListeners.delete(listener);
+  };
+}
+
+export function useIsAdMobReady(): boolean {
+  const [ready, setReady] = useState(isInitialized);
+  useEffect(() => {
+    return subscribeAdMobReady(setReady);
+  }, []);
+  return ready;
+}
 
 /**
  * Initializes Google Mobile Ads SDK with COPPA, Family Safety, and test safeguards.
@@ -139,20 +148,29 @@ export async function initializeAdMob(): Promise<void> {
       const MaxAdContentRating = gma.MaxAdContentRating || { G: 'G' };
 
       // 1. Mandatory Google Families & COPPA child-directed compliance + Test Device safeguard
-      await mobileAds().setRequestConfiguration({
-        // General audiences rating (G) only
-        maxAdContentRating: MaxAdContentRating.G,
-        // Tag for child directed treatment (COPPA)
-        tagForChildDirectedTreatment: true,
-        // Tag for under age of consent (GDPR-K)
-        tagForUnderAgeOfConsent: true,
-        // Whitelist test devices to prevent accidental policy violations
-        testDeviceIdentifiers: TEST_DEVICE_IDS,
-      });
+      try {
+        await mobileAds().setRequestConfiguration({
+          // General audiences rating (G) only
+          maxAdContentRating: MaxAdContentRating.G,
+          // Tag for child directed treatment (COPPA)
+          tagForChildDirectedTreatment: true,
+          // Tag for under age of consent (GDPR-K)
+          tagForUnderAgeOfConsent: true,
+          // Whitelist test devices to prevent accidental policy violations
+          testDeviceIdentifiers: TEST_DEVICE_IDS,
+        });
+      } catch (configErr) {
+        console.warn('[AdMob Safeguard] Request configuration notice:', configErr);
+      }
 
       // 2. Initialize Google Mobile Ads SDK
       await mobileAds().initialize();
       isInitialized = true;
+      initListeners.forEach((cb) => {
+        try {
+          cb(true);
+        } catch {}
+      });
 
       if (FORCE_TEST_ADS) {
         console.log('[AdMob Safeguard] Safe Test Mode ACTIVE: Test Ad Units in use to protect your account.');
@@ -170,6 +188,19 @@ export async function initializeAdMob(): Promise<void> {
 
   return initPromise;
 }
+
+// Interstitial Ad Management
+let interstitialAd: any = null;
+let isInterstitialLoaded = false;
+let isInterstitialLoading = false;
+let lastInterstitialShowTime = 0;
+// Google Families policy & kids UX: Rate-limit interstitials to avoid frustrating children.
+const INTERSTITIAL_COOLDOWN_MS = 2.5 * 60 * 1000; // 2.5 minutes
+
+// Rewarded Ad Management
+let rewardedAd: any = null;
+let isRewardedLoaded = false;
+let isRewardedLoading = false;
 
 /**
  * ----------------------------------------------------------------------------------
