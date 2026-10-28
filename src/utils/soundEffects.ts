@@ -1,17 +1,16 @@
 // src/utils/soundEffects.ts
-// Cheerful, kid-friendly sound effects for mini games.
+// Cheerful, kid-friendly sound effects for mini games with modern expo-audio.
 import { Platform } from 'react-native';
-import { Audio } from 'expo-av';
+import { createAudioPlayer, setAudioModeAsync, AudioPlayer } from 'expo-audio';
 
 let audioInitialized = false;
 
 export async function setupAudioMode(): Promise<void> {
   if (audioInitialized || Platform.OS === 'web') return;
   try {
-    await Audio.setAudioModeAsync({
-      playsInSilentModeIOS: true,
-      staysActiveInBackground: false,
-      shouldDuckAndroid: true,
+    await setAudioModeAsync({
+      playsInSilentMode: true,
+      shouldPlayInBackground: false,
     });
     audioInitialized = true;
   } catch {
@@ -176,15 +175,17 @@ function playWebVictorySound(): void {
 }
 
 /**
- * Universal Native sound player using expo-av.
+ * Universal Native sound player using expo-audio.
  */
-async function playNativeSound(source: number, volume = 0.9): Promise<void> {
+async function playNativeSound(source: any, volume = 0.9): Promise<void> {
   try {
     await setupAudioMode();
-    const { sound } = await Audio.Sound.createAsync(source, { shouldPlay: true, volume });
-    sound.setOnPlaybackStatusUpdate((status) => {
-      if (status.isLoaded && status.didJustFinish) {
-        sound.unloadAsync().catch(() => {});
+    const player = createAudioPlayer(source);
+    player.volume = volume;
+    player.play();
+    player.addListener('playbackStatusUpdate', (status) => {
+      if (status.didJustFinish) {
+        player.remove();
       }
     });
   } catch {
@@ -261,7 +262,7 @@ const ANIMAL_SOUNDS: Record<string, any> = {
   dolphin: require('../../assets/animals/dolphin.mp3'),
 };
 
-let activeAnimalSound: Audio.Sound | null = null;
+let activeAnimalPlayer: AudioPlayer | null = null;
 let activeWebAudio: HTMLAudioElement | null = null;
 
 /**
@@ -276,12 +277,12 @@ export async function stopAnimalSound(): Promise<void> {
     activeWebAudio = null;
   }
 
-  if (activeAnimalSound) {
+  if (activeAnimalPlayer) {
     try {
-      await activeAnimalSound.stopAsync();
-      await activeAnimalSound.unloadAsync();
+      activeAnimalPlayer.pause();
+      activeAnimalPlayer.remove();
     } catch {}
-    activeAnimalSound = null;
+    activeAnimalPlayer = null;
   }
 }
 
@@ -313,20 +314,19 @@ export async function playAnimalSound(animalId: string, volume = 0.95): Promise<
           return;
         }
       } catch {
-        // Fall back to expo-av if HTML5 audio fails
+        // Fall back to native player if web audio fails
       }
     }
 
-    const { sound } = await Audio.Sound.createAsync(assetSource, {
-      shouldPlay: true,
-      volume,
-    });
-    activeAnimalSound = sound;
-    sound.setOnPlaybackStatusUpdate((status) => {
-      if (status.isLoaded && status.didJustFinish) {
-        sound.unloadAsync().catch(() => {});
-        if (activeAnimalSound === sound) {
-          activeAnimalSound = null;
+    const player = createAudioPlayer(assetSource);
+    player.volume = volume;
+    activeAnimalPlayer = player;
+    player.play();
+    player.addListener('playbackStatusUpdate', (status) => {
+      if (status.didJustFinish) {
+        player.remove();
+        if (activeAnimalPlayer === player) {
+          activeAnimalPlayer = null;
         }
       }
     });
@@ -334,4 +334,3 @@ export async function playAnimalSound(animalId: string, volume = 0.95): Promise<
     // Non-critical fallback
   }
 }
-
